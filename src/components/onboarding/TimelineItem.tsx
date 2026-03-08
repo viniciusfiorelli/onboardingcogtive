@@ -48,7 +48,7 @@ export function TimelineItem({ milestone, isLast, index = 0 }: TimelineItemProps
         <div className="flex items-center gap-2 flex-wrap">
           <h4 className={cn(
             'font-semibold text-sm',
-            milestone.status === 'current' ? 'text-primary' : 'text-foreground'
+            milestone.status === 'in_progress' ? 'text-primary' : 'text-foreground'
           )}>
             {milestone.title}
           </h4>
