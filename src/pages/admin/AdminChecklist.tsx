@@ -752,9 +752,6 @@ export default function AdminChecklist() {
   }, [phaseTabs, p]);
 
   // ── Guards ────────────────────────────────────────────────
-  if (isLoading) return <div className="flex justify-center py-20"><div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin" /></div>;
-  if (error || !p) return <div className="text-center py-20 text-destructive font-bold">Erro ao carregar checklists.</div>;
-  
   if (isAdmin && !selectedProjectId) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] text-center max-w-lg mx-auto">
@@ -766,6 +763,9 @@ export default function AdminChecklist() {
       </div>
     );
   }
+
+  if (isLoading) return <div className="flex justify-center py-20"><div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin" /></div>;
+  if (error || !p) return <div className="text-center py-20 text-destructive font-bold">Erro ao carregar checklists.</div>;
 
   // ── Render Helpers ────────────────────────────────────────
 
