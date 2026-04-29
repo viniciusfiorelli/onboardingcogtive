@@ -50,8 +50,8 @@ export default function ClientList() {
     if (!clients) return [];
     return clients.filter(client => {
       const matchesSearch =
-        client.client_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        client.client_email.toLowerCase().includes(searchQuery.toLowerCase());
+        (client.client_name || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
+        (client.client_email || '').toLowerCase().includes(searchQuery.toLowerCase());
       
       if (!matchesSearch) return false;
 
