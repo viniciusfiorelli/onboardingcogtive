@@ -93,7 +93,7 @@ export default function ClientList() {
 
   const handleSelectClient = (projectId: string) => {
     setSelectedProjectId(projectId);
-    navigate('/admin');
+    navigate('/admin/project');
   };
 
   return (
