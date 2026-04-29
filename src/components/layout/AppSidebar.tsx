@@ -34,6 +34,7 @@ const adminItems = [
   { title: 'Timeline & Marcos', url: '/admin/next-steps', icon: ListChecks },
   { title: 'Academia & Treinos', url: '/admin/training', icon: GraduationCap },
   { title: 'Cofre de Documentos', url: '/admin/documents', icon: FileText },
+  { title: 'Aprovação de Documentos', url: '/admin/review-documents', icon: ListChecks },
   { title: 'Centro de Inteligência', url: '/admin', icon: LayoutDashboard },
   { title: 'Logs de Atividade', url: '/admin/logs', icon: Activity },
 ];

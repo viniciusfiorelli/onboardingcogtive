@@ -99,6 +99,20 @@ export interface SharedDocument {
   type: DocumentType;
   date: string;
   description: string;
+  fileUrl: string;
+}
+
+export type UploadStatus = 'pending' | 'approved' | 'rejected';
+
+export interface ClientUpload {
+  id: string;
+  projectId: string;
+  name: string;
+  description?: string;
+  fileUrl: string;
+  status: UploadStatus;
+  rejectionReason?: string;
+  createdAt: string;
 }
 
 export interface ChecklistItem {
@@ -134,6 +148,7 @@ export interface OnboardingProject {
   deliveries: DeliveryItem[];
   contacts: ProjectContact[];
   documents: SharedDocument[];
+  clientUploads: ClientUpload[];
   checklistItems: ChecklistItem[];
   createdAt: string;
   kickoffDate: string | null;

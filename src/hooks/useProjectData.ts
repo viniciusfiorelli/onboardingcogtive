@@ -70,6 +70,7 @@ export function useProjectData() {
           onboarding_deliveries (*),
           onboarding_contacts (*),
           onboarding_documents (*),
+          onboarding_client_uploads (*),
           onboarding_checklist_items (*)
         `);
       
@@ -223,6 +224,17 @@ export function useProjectData() {
               };
             })
         ] as SharedDocument[],
+        
+        clientUploads: (projectData.onboarding_client_uploads || []).map((u: any) => ({
+          id: u.id,
+          projectId: u.project_id,
+          name: u.name,
+          description: u.description,
+          fileUrl: u.file_url,
+          status: u.status,
+          rejectionReason: u.rejection_reason,
+          createdAt: u.created_at
+        })),
 
         checklistItems: (projectData.onboarding_checklist_items || [])
           .filter((cl: any) => {

@@ -20,6 +20,7 @@ import ClientList from "./pages/admin/ClientList";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminChecklist from "./pages/admin/AdminChecklist";
 import AdminLogs from "./pages/admin/AdminLogs";
+import AdminClientDocuments from "./pages/admin/AdminClientDocuments";
 
 const queryClient = new QueryClient();
 
@@ -60,6 +61,7 @@ const App = () => (
                   <Route path="clients" element={<ClientList />} />
                   <Route path="team" element={<Team />} />
                   <Route path="documents" element={<Documents />} />
+                  <Route path="review-documents" element={<AdminClientDocuments />} />
                   <Route path="logs" element={<AdminLogs />} />
                 </Route>
               </Route>
