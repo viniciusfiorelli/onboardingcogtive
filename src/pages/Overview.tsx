@@ -143,7 +143,7 @@ export default function Overview() {
   const basePath = isAdmin ? '/admin' : '/client';
 
   const metrics = [
-    { label: "Próximo Marco", value: nextMilestoneText, icon: Calendar, color: "text-blue-400 bg-blue-500/10 border-blue-500/20", link: `${basePath}/next-steps` },
+    { label: "Próximo Marco", value: nextMilestoneText, icon: Calendar, color: "text-blue-400 bg-blue-500/10 border-blue-500/20" },
     { label: "Checklist Pendente", value: openIssues + checklistPending, icon: AlertTriangle, color: "text-orange-400 bg-orange-500/10 border-orange-500/20", link: `${basePath}/pending` },
     { label: "Dias em Implantação", value: `${daysInOnboarding} ${daysInOnboarding === 1 ? 'd' : 'd'}`, icon: Clock, color: "text-red-400 bg-red-500/10 border-red-500/20" },
   ];

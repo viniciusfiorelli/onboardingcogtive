@@ -31,7 +31,6 @@ const adminItems = [
   { title: 'Base de Clientes', url: '/admin/clients', icon: Building },
   { title: 'Visão do Cliente', url: '/admin/project', icon: LayoutDashboard },
   { title: 'Checklist', url: '/admin/checklist', icon: ClipboardList },
-  { title: 'Timeline & Marcos', url: '/admin/next-steps', icon: ListChecks },
   { title: 'Academia & Treinos', url: '/admin/training', icon: GraduationCap },
   { title: 'Cofre de Documentos', url: '/admin/documents', icon: FileText },
   { title: 'Aprovação de Documentos', url: '/admin/review-documents', icon: ListChecks },
