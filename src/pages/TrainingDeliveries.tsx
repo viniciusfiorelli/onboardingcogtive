@@ -1,13 +1,49 @@
-import { mockProject } from '@/data/mockData';
+import { useProjectData } from '@/hooks/useProjectData';
+import { useAdmin } from '@/contexts/AdminContext';
 import { TrainingCard } from '@/components/onboarding/TrainingCard';
 import { DeliveryCard } from '@/components/onboarding/DeliveryCard';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { GraduationCap, Package, CheckCircle2, Clock } from 'lucide-react';
+import { GraduationCap, Package, CheckCircle2, Clock, Users, AlertTriangle, Loader2 } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 export default function TrainingDeliveries() {
-  const trainings = mockProject.trainings;
-  const deliveries = mockProject.deliveries;
+  const { isAdmin, selectedProjectId } = useAdmin();
+  const { data: project, isLoading, error } = useProjectData();
+
+  if (isAdmin && !selectedProjectId) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[60vh] text-center max-w-lg mx-auto">
+        <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mb-6">
+          <Users className="w-8 h-8 text-primary" />
+        </div>
+        <h2 className="text-2xl font-bold mb-2">Bem-vindo, Administrador</h2>
+        <p className="text-muted-foreground">
+          Para visualizar os treinamentos e entregas, por favor selecione um cliente no menu superior direito.
+        </p>
+      </div>
+    );
+  }
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-[60vh]">
+        <Loader2 className="w-8 h-8 text-primary animate-spin" />
+      </div>
+    );
+  }
+
+  if (error || !project) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[60vh] text-center">
+        <AlertTriangle className="w-12 h-12 text-destructive mb-4" />
+        <h2 className="text-xl font-bold">Erro ao carregar dados</h2>
+        <p className="text-muted-foreground mt-2">{error?.message || "Projeto não encontrado"}</p>
+      </div>
+    );
+  }
+
+  const trainings = project.trainings;
+  const deliveries = project.deliveries;
   const doneTrainings = trainings.filter(t => t.status === 'realizado').length;
   const doneDeliveries = deliveries.filter(d => d.status === 'concluida').length;
 

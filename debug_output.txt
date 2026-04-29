@@ -1,0 +1,564 @@
+Total projects in DB: 53
+Projects updated today (2026-03-12): 50
+
+Project: RENDA (UPSELL) (Pipefy ID: 1303881258) | Updated At: 2026-03-12T18:20:22.11+00:00
+Current Phase (Project Table): Triagem
+Phases in onboarding_phases:
+  - Triagem: current
+  - Kick-off: upcoming
+  - Preparação: upcoming
+  - Implantação: upcoming
+  - Operação assistida: upcoming
+  - Wrap-up: upcoming
+  - Concluído: upcoming
+
+Project: LABORATORIOS PIERRE-FABRE DO BRASIL LTDA (PP) (Pipefy ID: 1304193980) | Updated At: 2026-03-12T18:20:22.111+00:00
+Current Phase (Project Table): Triagem
+Phases in onboarding_phases:
+  - Triagem: current
+  - Kick-off: upcoming
+  - Preparação: upcoming
+  - Implantação: upcoming
+  - Operação assistida: upcoming
+  - Wrap-up: upcoming
+  - Concluído: upcoming
+
+Project: BIOFARM (Pipefy ID: 1303803244) | Updated At: 2026-03-11T15:00:45.09895+00:00
+Current Phase (Project Table): Concluído
+Phases in onboarding_phases:
+
+Project: FARMABASE (Pipefy ID: 1305429752) | Updated At: 2026-03-11T15:00:45.26822+00:00
+Current Phase (Project Table): Concluído
+Phases in onboarding_phases:
+
+Project: SUNNYEGGS (Pipefy ID: 1303320355) | Updated At: 2026-03-12T18:20:22.111+00:00
+Current Phase (Project Table): Operação assistida
+Phases in onboarding_phases:
+  - Triagem: completed
+  - Kick-off: completed
+  - Preparação: completed
+  - Implantação: completed
+  - Operação assistida: current
+  - Wrap-up: upcoming
+  - Concluído: upcoming
+
+Project: Fitoway Laboratorio Nutricional Ltda (Pipefy ID: 1303885432) | Updated At: 2026-03-12T18:20:22.111+00:00
+Current Phase (Project Table): Operação assistida
+Phases in onboarding_phases:
+  - Triagem: completed
+  - Kick-off: completed
+  - Preparação: completed
+  - Implantação: completed
+  - Operação assistida: current
+  - Wrap-up: upcoming
+  - Concluído: upcoming
+
+Project: RENDA (Pipefy ID: 1303869494) | Updated At: 2026-03-12T18:20:22.111+00:00
+Current Phase (Project Table): Operação assistida
+Phases in onboarding_phases:
+  - Triagem: completed
+  - Kick-off: completed
+  - Preparação: completed
+  - Implantação: completed
+  - Operação assistida: current
+  - Wrap-up: upcoming
+  - Concluído: upcoming
+
+Project: GLOBOPHARMA (UPSELL) (Pipefy ID: 1303903190) | Updated At: 2026-03-12T18:20:22.111+00:00
+Current Phase (Project Table): Preparação
+Phases in onboarding_phases:
+  - Triagem: completed
+  - Kick-off: completed
+  - Preparação: current
+  - Implantação: upcoming
+  - Operação assistida: upcoming
+  - Wrap-up: upcoming
+  - Concluído: upcoming
+
+Project: SÃO BRAZ (Pipefy ID: 1303167391) | Updated At: 2026-03-12T18:20:22.111+00:00
+Current Phase (Project Table): Operação assistida
+Phases in onboarding_phases:
+  - Triagem: completed
+  - Kick-off: completed
+  - Preparação: completed
+  - Implantação: completed
+  - Operação assistida: current
+  - Wrap-up: upcoming
+  - Concluído: upcoming
+
+Project: ARESE (UPSELL 1) (Pipefy ID: 1314728874) | Updated At: 2026-03-12T18:20:22.111+00:00
+Current Phase (Project Table): Wrap-up
+Phases in onboarding_phases:
+  - Triagem: completed
+  - Kick-off: completed
+  - Preparação: completed
+  - Implantação: completed
+  - Operação assistida: completed
+  - Wrap-up: current
+  - Concluído: upcoming
+
+Project: ARESE (UPSELL 2) (Pipefy ID: 1314731375) | Updated At: 2026-03-12T18:20:22.111+00:00
+Current Phase (Project Table): Wrap-up
+Phases in onboarding_phases:
+  - Triagem: completed
+  - Kick-off: completed
+  - Preparação: completed
+  - Implantação: completed
+  - Operação assistida: completed
+  - Wrap-up: current
+  - Concluído: upcoming
+
+Project: Cliente Teste (Pipefy ID: mock-1773261589688) | Updated At: 2026-03-11T19:50:12.593587+00:00
+Current Phase (Project Table): Implantação
+Phases in onboarding_phases:
+
+Project: BIOMM (Pipefy ID: 1303114628) | Updated At: 2026-03-12T18:20:22.11+00:00
+Current Phase (Project Table): Triagem
+Phases in onboarding_phases:
+  - Triagem: current
+  - Kick-off: upcoming
+  - Preparação: upcoming
+  - Implantação: upcoming
+  - Operação assistida: upcoming
+  - Wrap-up: upcoming
+  - Concluído: upcoming
+
+Project: NISSIN FOODS DO BRASIL LTDA (Pipefy ID: 1304203657) | Updated At: 2026-03-12T18:20:22.111+00:00
+Current Phase (Project Table): Triagem
+Phases in onboarding_phases:
+  - Triagem: current
+  - Kick-off: upcoming
+  - Preparação: upcoming
+  - Implantação: upcoming
+  - Operação assistida: upcoming
+  - Wrap-up: upcoming
+  - Concluído: upcoming
+
+Project: DONALDSON (Pipefy ID: 1308165292) | Updated At: 2026-03-12T18:20:22.111+00:00
+Current Phase (Project Table): Triagem
+Phases in onboarding_phases:
+  - Triagem: current
+  - Kick-off: upcoming
+  - Preparação: upcoming
+  - Implantação: upcoming
+  - Operação assistida: upcoming
+  - Wrap-up: upcoming
+  - Concluído: upcoming
+
+Project: MARFRIG BATAGUASSU (INDUSTRIALIZADOS) (Pipefy ID: 1305206583) | Updated At: 2026-03-12T18:20:22.111+00:00
+Current Phase (Project Table): Kick-off
+Phases in onboarding_phases:
+  - Triagem: completed
+  - Kick-off: current
+  - Preparação: upcoming
+  - Implantação: upcoming
+  - Operação assistida: upcoming
+  - Wrap-up: upcoming
+  - Concluído: upcoming
+
+Project: MARFRIG PROMISSÃO (ABATE E DESOSSA) (Pipefy ID: 1305211318) | Updated At: 2026-03-12T18:20:22.111+00:00
+Current Phase (Project Table): Kick-off
+Phases in onboarding_phases:
+  - Triagem: completed
+  - Kick-off: current
+  - Preparação: upcoming
+  - Implantação: upcoming
+  - Operação assistida: upcoming
+  - Wrap-up: upcoming
+  - Concluído: upcoming
+
+Project: MARFRIG VARZEA GRANDE (ABATE E DESOSSA) (Pipefy ID: 1305218653) | Updated At: 2026-03-12T18:20:22.111+00:00
+Current Phase (Project Table): Kick-off
+Phases in onboarding_phases:
+  - Triagem: completed
+  - Kick-off: current
+  - Preparação: upcoming
+  - Implantação: upcoming
+  - Operação assistida: upcoming
+  - Wrap-up: upcoming
+  - Concluído: upcoming
+
+Project: BUSCHLE & LEPPER SA (Pipefy ID: 1301491682) | Updated At: 2026-03-12T18:20:22.111+00:00
+Current Phase (Project Table): Preparação
+Phases in onboarding_phases:
+  - Triagem: completed
+  - Kick-off: completed
+  - Preparação: current
+  - Implantação: upcoming
+  - Operação assistida: upcoming
+  - Wrap-up: upcoming
+  - Concluído: upcoming
+
+Project: CORTEVA (Pipefy ID: 1301553371) | Updated At: 2026-03-12T18:20:22.111+00:00
+Current Phase (Project Table): Preparação
+Phases in onboarding_phases:
+  - Triagem: completed
+  - Kick-off: completed
+  - Preparação: current
+  - Implantação: upcoming
+  - Operação assistida: upcoming
+  - Wrap-up: upcoming
+  - Concluído: upcoming
+
+Project: GT Foods (Pipefy ID: 1304179544) | Updated At: 2026-03-12T18:20:22.111+00:00
+Current Phase (Project Table): Preparação
+Phases in onboarding_phases:
+  - Triagem: completed
+  - Kick-off: completed
+  - Preparação: current
+  - Implantação: upcoming
+  - Operação assistida: upcoming
+  - Wrap-up: upcoming
+  - Concluído: upcoming
+
+Project: JA Saúde Animal (Flow View) (Pipefy ID: 1304185384) | Updated At: 2026-03-12T18:20:22.111+00:00
+Current Phase (Project Table): Preparação
+Phases in onboarding_phases:
+  - Triagem: completed
+  - Kick-off: completed
+  - Preparação: current
+  - Implantação: upcoming
+  - Operação assistida: upcoming
+  - Wrap-up: upcoming
+  - Concluído: upcoming
+
+Project: NATULAB (UPSELL) (Pipefy ID: 1304195996) | Updated At: 2026-03-12T18:20:22.111+00:00
+Current Phase (Project Table): Preparação
+Phases in onboarding_phases:
+  - Triagem: completed
+  - Kick-off: completed
+  - Preparação: current
+  - Implantação: upcoming
+  - Operação assistida: upcoming
+  - Wrap-up: upcoming
+  - Concluído: upcoming
+
+Project: DFL (FLOW VIEW) (Pipefy ID: 1303806457) | Updated At: 2026-03-12T18:20:22.111+00:00
+Current Phase (Project Table): Preparação
+Phases in onboarding_phases:
+  - Triagem: completed
+  - Kick-off: completed
+  - Preparação: current
+  - Implantação: upcoming
+  - Operação assistida: upcoming
+  - Wrap-up: upcoming
+  - Concluído: upcoming
+
+Project: KOPPERT CHARQUEADA (Upsell 2) (Pipefy ID: 1304189545) | Updated At: 2026-03-12T18:20:22.111+00:00
+Current Phase (Project Table): Preparação
+Phases in onboarding_phases:
+  - Triagem: completed
+  - Kick-off: completed
+  - Preparação: current
+  - Implantação: upcoming
+  - Operação assistida: upcoming
+  - Wrap-up: upcoming
+  - Concluído: upcoming
+
+Project: MARFRIG VARZEA GRANDE (INDUSTRIALIZADOS) (Pipefy ID: 1305371299) | Updated At: 2026-03-12T18:20:22.111+00:00
+Current Phase (Project Table): Preparação
+Phases in onboarding_phases:
+  - Triagem: completed
+  - Kick-off: completed
+  - Preparação: current
+  - Implantação: upcoming
+  - Operação assistida: upcoming
+  - Wrap-up: upcoming
+  - Concluído: upcoming
+
+Project: BIOLEVE (Flamin Mineração) (Pipefy ID: 1301777848) | Updated At: 2026-03-12T18:20:22.111+00:00
+Current Phase (Project Table): Implantação
+Phases in onboarding_phases:
+  - Triagem: completed
+  - Kick-off: completed
+  - Preparação: completed
+  - Implantação: current
+  - Operação assistida: upcoming
+  - Wrap-up: upcoming
+  - Concluído: upcoming
+
+Project: SHERWIN WILLIAMS (Pipefy ID: 1303881029) | Updated At: 2026-03-12T18:20:22.111+00:00
+Current Phase (Project Table): Implantação
+Phases in onboarding_phases:
+  - Triagem: completed
+  - Kick-off: completed
+  - Preparação: completed
+  - Implantação: current
+  - Operação assistida: upcoming
+  - Wrap-up: upcoming
+  - Concluído: upcoming
+
+Project: SKAFE (Pipefy ID: 1303839135) | Updated At: 2026-03-12T18:20:22.111+00:00
+Current Phase (Project Table): Implantação
+Phases in onboarding_phases:
+  - Triagem: completed
+  - Kick-off: completed
+  - Preparação: completed
+  - Implantação: current
+  - Operação assistida: upcoming
+  - Wrap-up: upcoming
+  - Concluído: upcoming
+
+Project: Airoplast (Pipefy ID: 1301477405) | Updated At: 2026-03-12T18:20:22.111+00:00
+Current Phase (Project Table): Operação assistida
+Phases in onboarding_phases:
+  - Triagem: completed
+  - Kick-off: completed
+  - Preparação: completed
+  - Implantação: completed
+  - Operação assistida: current
+  - Wrap-up: upcoming
+  - Concluído: upcoming
+
+Project: JURUPLAST (Pipefy ID: 1301528046) | Updated At: 2026-03-12T18:20:22.111+00:00
+Current Phase (Project Table): Operação assistida
+Phases in onboarding_phases:
+  - Triagem: completed
+  - Kick-off: completed
+  - Preparação: completed
+  - Implantação: completed
+  - Operação assistida: current
+  - Wrap-up: upcoming
+  - Concluído: upcoming
+
+Project: AZS (Pipefy ID: 1301599280) | Updated At: 2026-03-12T18:20:22.111+00:00
+Current Phase (Project Table): Operação assistida
+Phases in onboarding_phases:
+  - Triagem: completed
+  - Kick-off: completed
+  - Preparação: completed
+  - Implantação: completed
+  - Operação assistida: current
+  - Wrap-up: upcoming
+  - Concluído: upcoming
+
+Project: CONQUISTA (Pipefy ID: 1301757766) | Updated At: 2026-03-12T18:20:22.111+00:00
+Current Phase (Project Table): Operação assistida
+Phases in onboarding_phases:
+  - Triagem: completed
+  - Kick-off: completed
+  - Preparação: completed
+  - Implantação: completed
+  - Operação assistida: current
+  - Wrap-up: upcoming
+  - Concluído: upcoming
+
+Project: KARSTEN (Pipefy ID: 1303121922) | Updated At: 2026-03-12T18:20:22.111+00:00
+Current Phase (Project Table): Operação assistida
+Phases in onboarding_phases:
+  - Triagem: completed
+  - Kick-off: completed
+  - Preparação: completed
+  - Implantação: completed
+  - Operação assistida: current
+  - Wrap-up: upcoming
+  - Concluído: upcoming
+
+Project: FARMARIN (Pipefy ID: 1303049794) | Updated At: 2026-03-12T18:20:22.111+00:00
+Current Phase (Project Table): Operação assistida
+Phases in onboarding_phases:
+  - Triagem: completed
+  - Kick-off: completed
+  - Preparação: completed
+  - Implantação: completed
+  - Operação assistida: current
+  - Wrap-up: upcoming
+  - Concluído: upcoming
+
+Project: ICONIC FOS (OSASCO) (Pipefy ID: 1303790727) | Updated At: 2026-03-12T18:20:22.111+00:00
+Current Phase (Project Table): Operação assistida
+Phases in onboarding_phases:
+  - Triagem: completed
+  - Kick-off: completed
+  - Preparação: completed
+  - Implantação: completed
+  - Operação assistida: current
+  - Wrap-up: upcoming
+  - Concluído: upcoming
+
+Project: TERPHANE (Pipefy ID: 1303844512) | Updated At: 2026-03-12T18:20:22.111+00:00
+Current Phase (Project Table): Operação assistida
+Phases in onboarding_phases:
+  - Triagem: completed
+  - Kick-off: completed
+  - Preparação: completed
+  - Implantação: completed
+  - Operação assistida: current
+  - Wrap-up: upcoming
+  - Concluído: upcoming
+
+Project: Legrand (Pipefy ID: 1301540876) | Updated At: 2026-03-12T18:20:22.111+00:00
+Current Phase (Project Table): Operação assistida
+Phases in onboarding_phases:
+  - Triagem: completed
+  - Kick-off: completed
+  - Preparação: completed
+  - Implantação: completed
+  - Operação assistida: current
+  - Wrap-up: upcoming
+  - Concluído: upcoming
+
+Project: KOPPERT CHARQUEADA (Upsell 2) (Pipefy ID: 1304905116) | Updated At: 2026-03-12T18:20:22.111+00:00
+Current Phase (Project Table): Operação assistida
+Phases in onboarding_phases:
+  - Triagem: completed
+  - Kick-off: completed
+  - Preparação: completed
+  - Implantação: completed
+  - Operação assistida: current
+  - Wrap-up: upcoming
+  - Concluído: upcoming
+
+Project: NATIVA (Pipefy ID: 1307141852) | Updated At: 2026-03-12T18:20:22.111+00:00
+Current Phase (Project Table): Operação assistida
+Phases in onboarding_phases:
+  - Triagem: completed
+  - Kick-off: completed
+  - Preparação: completed
+  - Implantação: completed
+  - Operação assistida: current
+  - Wrap-up: upcoming
+  - Concluído: upcoming
+
+Project: Santa Helena (Pipefy ID: 1307372606) | Updated At: 2026-03-12T18:20:22.111+00:00
+Current Phase (Project Table): Operação assistida
+Phases in onboarding_phases:
+  - Triagem: completed
+  - Kick-off: completed
+  - Preparação: completed
+  - Implantação: completed
+  - Operação assistida: current
+  - Wrap-up: upcoming
+  - Concluído: upcoming
+
+Project: BLAU (POC Smart Setup) (Pipefy ID: 1308220503) | Updated At: 2026-03-12T18:20:22.111+00:00
+Current Phase (Project Table): Operação assistida
+Phases in onboarding_phases:
+  - Triagem: completed
+  - Kick-off: completed
+  - Preparação: completed
+  - Implantação: completed
+  - Operação assistida: current
+  - Wrap-up: upcoming
+  - Concluído: upcoming
+
+Project: GUERBET BRASIL (Pipefy ID: 1314525711) | Updated At: 2026-03-12T18:20:22.111+00:00
+Current Phase (Project Table): Wrap-up
+Phases in onboarding_phases:
+  - Triagem: completed
+  - Kick-off: completed
+  - Preparação: completed
+  - Implantação: completed
+  - Operação assistida: completed
+  - Wrap-up: current
+  - Concluído: upcoming
+
+Project: CONQUISTA BLITZ (Pipefy ID: 1301597725) | Updated At: 2026-03-12T18:20:22.111+00:00
+Current Phase (Project Table): Concluído
+Phases in onboarding_phases:
+  - Triagem: completed
+  - Kick-off: completed
+  - Preparação: completed
+  - Implantação: completed
+  - Operação assistida: completed
+  - Wrap-up: completed
+  - Concluído: current
+
+Project: XAMEGO BOM (Pipefy ID: 1304046610) | Updated At: 2026-03-12T18:20:22.111+00:00
+Current Phase (Project Table): Concluído
+Phases in onboarding_phases:
+  - Triagem: completed
+  - Kick-off: completed
+  - Preparação: completed
+  - Implantação: completed
+  - Operação assistida: completed
+  - Wrap-up: completed
+  - Concluído: current
+
+Project: VIGODENT (Pipefy ID: 1303849317) | Updated At: 2026-03-12T18:20:22.111+00:00
+Current Phase (Project Table): Concluído
+Phases in onboarding_phases:
+  - Triagem: completed
+  - Kick-off: completed
+  - Preparação: completed
+  - Implantação: completed
+  - Operação assistida: completed
+  - Wrap-up: completed
+  - Concluído: current
+
+Project: Kacyumara (Pipefy ID: 1303835895) | Updated At: 2026-03-12T18:20:22.111+00:00
+Current Phase (Project Table): Concluído
+Phases in onboarding_phases:
+  - Triagem: completed
+  - Kick-off: completed
+  - Preparação: completed
+  - Implantação: completed
+  - Operação assistida: completed
+  - Wrap-up: completed
+  - Concluído: current
+
+Project: FERSOL (Pipefy ID: 1304743452) | Updated At: 2026-03-12T18:20:22.111+00:00
+Current Phase (Project Table): Concluído
+Phases in onboarding_phases:
+  - Triagem: completed
+  - Kick-off: completed
+  - Preparação: completed
+  - Implantação: completed
+  - Operação assistida: completed
+  - Wrap-up: completed
+  - Concluído: current
+
+Project: PRONUTRITION (Pipefy ID: 1304762555) | Updated At: 2026-03-12T18:20:22.111+00:00
+Current Phase (Project Table): Concluído
+Phases in onboarding_phases:
+  - Triagem: completed
+  - Kick-off: completed
+  - Preparação: completed
+  - Implantação: completed
+  - Operação assistida: completed
+  - Wrap-up: completed
+  - Concluído: current
+
+Project: MARJAN (Pipefy ID: 1304775471) | Updated At: 2026-03-12T18:20:22.111+00:00
+Current Phase (Project Table): Concluído
+Phases in onboarding_phases:
+  - Triagem: completed
+  - Kick-off: completed
+  - Preparação: completed
+  - Implantação: completed
+  - Operação assistida: completed
+  - Wrap-up: completed
+  - Concluído: current
+
+Project: MARJAN (UPSELL) (Pipefy ID: 1304789484) | Updated At: 2026-03-12T18:20:22.111+00:00
+Current Phase (Project Table): Concluído
+Phases in onboarding_phases:
+  - Triagem: completed
+  - Kick-off: completed
+  - Preparação: completed
+  - Implantação: completed
+  - Operação assistida: completed
+  - Wrap-up: completed
+  - Concluído: current
+
+Project: GEQ (Pipefy ID: 1303816271) | Updated At: 2026-03-12T18:20:22.112+00:00
+Current Phase (Project Table): Concluído
+Phases in onboarding_phases:
+  - Triagem: completed
+  - Kick-off: completed
+  - Preparação: completed
+  - Implantação: completed
+  - Operação assistida: completed
+  - Wrap-up: completed
+  - Concluído: current
+
+Project: ECOFITUS (Pipefy ID: 1303796411) | Updated At: 2026-03-12T18:20:22.112+00:00
+Current Phase (Project Table): Concluído
+Phases in onboarding_phases:
+  - Triagem: completed
+  - Kick-off: completed
+  - Preparação: completed
+  - Implantação: completed
+  - Operação assistida: completed
+  - Wrap-up: completed
+  - Concluído: current

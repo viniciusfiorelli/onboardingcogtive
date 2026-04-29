@@ -55,7 +55,7 @@ interface SummaryCardsProps {
 export function SummaryCards({ pendingCount, trainingCount, deliveredCount, nextActionsCount }: SummaryCardsProps) {
   return (
     <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
-      <SummaryCard title="Pendências" value={pendingCount} description="dependem da sua equipe" icon={AlertTriangle} accent="warning" delay={0.05} />
+      <SummaryCard title="Checklist" value={pendingCount} description="dependem da sua equipe" icon={AlertTriangle} accent="warning" delay={0.05} />
       <SummaryCard title="Treinamentos" value={trainingCount} description="sessões agendadas" icon={GraduationCap} accent="primary" delay={0.1} />
       <SummaryCard title="Entregas" value={deliveredCount} description="etapas concluídas" icon={CheckCircle2} accent="success" delay={0.15} />
       <SummaryCard title="Próximas" value={nextActionsCount} description="ações previstas" icon={ArrowRight} accent="muted" delay={0.2} />

@@ -1,9 +1,10 @@
 import { Card, CardContent } from '@/components/ui/card';
-import { StatusBadge, CategoryBadge } from './StatusBadge';
 import { CustomerPendingIssue } from '@/types/onboarding';
-import { CalendarClock, User, AlertCircle } from 'lucide-react';
+import { CalendarClock, AlertCircle, Clock, CheckCircle2, Hourglass } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { motion } from 'framer-motion';
+import { ptBR } from 'date-fns/locale';
+import { format, parseISO } from 'date-fns';
 
 interface PendingIssueCardProps {
   issue: CustomerPendingIssue;
@@ -11,9 +12,21 @@ interface PendingIssueCardProps {
 }
 
 export function PendingIssueCard({ issue, index = 0 }: PendingIssueCardProps) {
-  const deadline = new Date(issue.deadline).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' });
-  const isOverdue = new Date(issue.deadline) < new Date() && issue.status !== 'concluida';
+  const deadlineDate = parseISO(issue.deadline);
+  const deadlineStr = format(deadlineDate, "dd 'de' MMM", { locale: ptBR });
+  
+  const isOverdue = deadlineDate < new Date() && issue.status !== 'concluida';
   const isDone = issue.status === 'concluida';
+
+  const statusConfig = {
+    aberta: { label: 'Aberta', color: 'bg-destructive/15 text-destructive border-destructive/30', icon: AlertCircle },
+    em_andamento: { label: 'Em Andamento', color: 'bg-primary/20 text-primary border-primary/30', icon: Clock },
+    aguardando_retorno: { label: 'Aguardando', color: 'bg-warning/15 text-warning border-warning/30', icon: Hourglass },
+    concluida: { label: 'Concluída', color: 'bg-success/20 text-success border-success/30', icon: CheckCircle2 },
+  };
+
+  const currentStatus = statusConfig[issue.status];
+  const StatusIcon = currentStatus.icon;
 
   return (
     <motion.div
@@ -22,51 +35,50 @@ export function PendingIssueCard({ issue, index = 0 }: PendingIssueCardProps) {
       transition={{ delay: index * 0.05, duration: 0.35 }}
     >
       <Card className={cn(
-        'glass-card-hover relative overflow-hidden',
+        'glass-card-hover relative overflow-hidden h-full',
         isOverdue && 'border-destructive/30',
-        isDone && 'opacity-60'
+        isDone && 'opacity-60 grayscale-[0.5]'
       )}>
-        {/* Criticality accent bar */}
+        {/* Accent bar for urgent issues */}
         <div className={cn(
-          'absolute top-0 left-0 w-1 h-full rounded-l-lg',
-          issue.criticality === 'alta' && 'bg-destructive',
-          issue.criticality === 'media' && 'bg-warning',
-          issue.criticality === 'baixa' && 'bg-muted-foreground/30'
+          'absolute top-0 left-0 w-1.5 h-full rounded-l-lg',
+          issue.status === 'aberta' ? 'bg-destructive' : 'bg-primary/30'
         )} />
 
-        <CardContent className="p-5 pl-6 space-y-3">
+        <CardContent className="p-5 pl-7 space-y-4">
           <div className="flex items-start justify-between gap-3">
-            <div className="space-y-1 flex-1 min-w-0">
+            <div className="space-y-1.5 flex-1 min-w-0">
               <h3 className={cn('font-semibold text-sm leading-snug', isDone ? 'text-muted-foreground line-through' : 'text-foreground')}>
                 {issue.title}
               </h3>
-              <p className="text-xs text-muted-foreground leading-relaxed">{issue.description}</p>
+              <p className="text-xs text-muted-foreground leading-relaxed line-clamp-2">{issue.description}</p>
             </div>
-            <StatusBadge status={issue.criticality} />
+            
+            <div className={cn(
+              "flex flex-col items-center justify-center shrink-0 w-12 h-12 rounded-lg border",
+              currentStatus.color
+            )}>
+              <StatusIcon className="w-5 h-5" />
+            </div>
           </div>
 
-          <div className="flex items-center flex-wrap gap-1.5">
-            <CategoryBadge category={issue.category} />
-            <StatusBadge status={issue.status} />
-          </div>
-
-          <div className="flex items-center justify-between text-xs text-muted-foreground pt-2 border-t border-border/30">
-            <span className={cn('flex items-center gap-1.5 font-medium', isOverdue && 'text-destructive')}>
-              {isOverdue && <AlertCircle className="w-3 h-3" />}
-              <CalendarClock className="w-3 h-3" />
-              {isOverdue ? 'Atrasado' : 'Prazo'}: {deadline}
+          <div className="flex justify-between items-center pt-3 border-t border-border/40">
+            <span className={cn(
+              'flex items-center gap-1.5 text-xs font-medium px-2.5 py-1 rounded-md bg-muted/50', 
+              isOverdue && 'text-destructive bg-destructive/10'
+            )}>
+              {isOverdue && <AlertCircle className="w-3.5 h-3.5" />}
+              {!isOverdue && <CalendarClock className="w-3.5 h-3.5" />}
+              {isOverdue ? 'Atrasado' : 'Prazo'}: {deadlineStr}
             </span>
-            <span className="flex items-center gap-1.5 truncate max-w-[50%]">
-              <User className="w-3 h-3 shrink-0" />
-              <span className="truncate">{issue.suggestedOwner}</span>
+            
+            <span className={cn(
+               "text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full border",
+               currentStatus.color
+            )}>
+              {currentStatus.label}
             </span>
           </div>
-
-          {issue.observation && (
-            <p className="text-xs text-muted-foreground/80 italic bg-muted/30 rounded-lg px-3 py-2 leading-relaxed">
-              💡 {issue.observation}
-            </p>
-          )}
         </CardContent>
       </Card>
     </motion.div>

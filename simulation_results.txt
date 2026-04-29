@@ -1,0 +1,6 @@
+Fetching from Pipefy...
+Pipefy Data Structure: error, error_description, state
+Pipefy Data has data: false
+Global Error: TypeError: Cannot read properties of undefined (reading 'allCards')
+    at simulateSync (file:///C:/Users/Vin%C3%ADcius%20Fiorelli/Documents/lite-app-cliente-implanta-o/simulate_sync.mjs:46:35)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)

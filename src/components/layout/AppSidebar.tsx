@@ -3,12 +3,14 @@ import {
   AlertTriangle,
   ListChecks,
   GraduationCap,
-  Users,
+  Building,
   FileText,
   LogOut,
+  ClipboardList,
+  Activity,
 } from 'lucide-react';
 import { NavLink } from '@/components/NavLink';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import {
   Sidebar,
   SidebarContent,
@@ -22,57 +24,93 @@ import {
   useSidebar,
 } from '@/components/ui/sidebar';
 import { Button } from '@/components/ui/button';
+import { useAuth } from '@/hooks/useAuth';
+import { motion } from 'framer-motion';
 
-const items = [
-  { title: 'Visão Geral', url: '/overview', icon: LayoutDashboard },
-  { title: 'Pendências', url: '/pending', icon: AlertTriangle },
-  { title: 'Próximos Passos', url: '/next-steps', icon: ListChecks },
-  { title: 'Treinamentos', url: '/training', icon: GraduationCap },
-  { title: 'Equipe', url: '/team', icon: Users },
-  { title: 'Documentos', url: '/documents', icon: FileText },
+const adminItems = [
+  { title: 'Base de Clientes', url: '/admin/clients', icon: Building },
+  { title: 'Visão do Cliente', url: '/admin/project', icon: LayoutDashboard },
+  { title: 'Checklist', url: '/admin/checklist', icon: ClipboardList },
+  { title: 'Timeline & Marcos', url: '/admin/next-steps', icon: ListChecks },
+  { title: 'Academia & Treinos', url: '/admin/training', icon: GraduationCap },
+  { title: 'Cofre de Documentos', url: '/admin/documents', icon: FileText },
+  { title: 'Centro de Inteligência', url: '/admin', icon: LayoutDashboard },
+  { title: 'Logs de Atividade', url: '/admin/logs', icon: Activity },
+];
+
+const clientItems = [
+  { title: 'Visão Geral', url: '/client', icon: LayoutDashboard },
+  { title: 'Checklist', url: '/client/checklist', icon: ClipboardList },
+  { title: 'Treinamentos', url: '/client/training', icon: GraduationCap },
+  { title: 'Documentos', url: '/client/documents', icon: FileText },
 ];
 
 export function AppSidebar() {
   const { state } = useSidebar();
   const collapsed = state === 'collapsed';
   const navigate = useNavigate();
+  const { session, signOut } = useAuth();
 
-  const handleLogout = () => {
-    localStorage.removeItem('cogtive_auth');
+  const handleLogout = async () => {
+    await signOut();
     navigate('/login');
   };
 
+  const isAdmin = session?.user?.email?.endsWith('@cogtive.com');
+  const items = isAdmin ? adminItems : clientItems;
+
   return (
-    <Sidebar collapsible="icon">
-      <SidebarContent>
+    <Sidebar collapsible="icon" className="border-r-0 bg-transparent">
+      <SidebarContent className="bg-background/80 backdrop-blur-3xl pt-2">
         <SidebarGroup>
           {!collapsed && (
-            <div className="px-3 py-4 mb-2">
-              <div className="flex items-center gap-2">
-                <div className="w-8 h-8 rounded-lg gradient-primary flex items-center justify-center">
-                  <span className="text-xs font-bold text-primary-foreground">C</span>
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="px-5 py-6 mb-4 mt-2">
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 rounded-2xl bg-black border border-white/10 shadow-xl flex items-center justify-center relative overflow-hidden group">
+                  <div className="absolute inset-0 bg-primary/20 group-hover:bg-primary/40 transition-colors" />
+                  <span className="text-xl font-black text-white relative z-10">C.</span>
                 </div>
                 <div>
-                  <p className="text-sm font-bold text-foreground">Cogtive</p>
-                  <p className="text-[10px] text-muted-foreground">Onboarding Portal</p>
+                  <p className="text-[10px] uppercase font-black tracking-widest text-primary mb-0.5">
+                    {isAdmin ? "Admin | Success Hub" : "Portal do Cliente"}
+                  </p>
+                  <p className="text-xs text-muted-foreground font-medium truncate w-36 opacity-80">
+                    {session?.user?.email}
+                  </p>
                 </div>
               </div>
-            </div>
+            </motion.div>
           )}
-          <SidebarGroupLabel>Menu</SidebarGroupLabel>
+          
+          <SidebarGroupLabel className="px-5 text-[10px] uppercase tracking-widest font-bold text-muted-foreground/50 mb-3">
+            {collapsed ? '·' : 'Módulos Operacionais'}
+          </SidebarGroupLabel>
+          
           <SidebarGroupContent>
-            <SidebarMenu>
-              {items.map((item) => (
+            <SidebarMenu className="gap-2 px-3">
+              {items.map((item, index) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild>
                     <NavLink
                       to={item.url}
-                      end
-                      className="hover:bg-sidebar-accent/50"
-                      activeClassName="bg-sidebar-accent text-primary font-medium"
+                      end={index === 0} // Força URL exata para o root
+                      className={({ isActive }) => `
+                        relative group flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-300
+                        ${isActive 
+                          ? 'bg-primary/10 text-primary glow-sm font-bold' 
+                          : 'text-muted-foreground hover:bg-white/5 hover:text-white font-medium'
+                        }
+                      `}
                     >
-                      <item.icon className="mr-2 h-4 w-4" />
-                      {!collapsed && <span>{item.title}</span>}
+                      {({ isActive }) => (
+                         <>
+                           {isActive && !collapsed && (
+                             <motion.div layoutId="sidebar-active" className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 rounded-r-full bg-primary" />
+                           )}
+                           <item.icon className={`w-5 h-5 flex-shrink-0 transition-colors ${isActive ? 'text-primary' : 'text-muted-foreground group-hover:text-white'}`} />
+                           {!collapsed && <span className="tracking-wide text-sm">{item.title}</span>}
+                         </>
+                      )}
                     </NavLink>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
@@ -81,17 +119,20 @@ export function AppSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
-      <SidebarFooter>
-        {!collapsed && (
-          <Button
-            variant="ghost"
-            className="w-full justify-start text-muted-foreground hover:text-foreground"
-            onClick={handleLogout}
-          >
-            <LogOut className="mr-2 h-4 w-4" />
-            Sair
-          </Button>
-        )}
+      
+      <SidebarFooter className="bg-background/80 backdrop-blur-3xl pb-6 px-4">
+        <Button
+          variant="ghost"
+          size={collapsed ? "icon" : "default"}
+          className={`rounded-xl transition-all h-12 w-full flex items-center justify-center gap-3 group
+            ${collapsed ? 'hover:bg-destructive/10' : 'bg-white/5 hover:bg-destructive/10 hover:border-destructive/30 border border-transparent'}
+          `}
+          onClick={handleLogout}
+          title="Encerrar Sessão"
+        >
+          <LogOut className={`w-5 h-5 transition-colors ${collapsed ? 'text-muted-foreground group-hover:text-destructive' : 'text-muted-foreground group-hover:text-destructive'}`} />
+          {!collapsed && <span className="font-bold text-sm text-muted-foreground group-hover:text-destructive transition-colors">Encerrar Sessão</span>}
+        </Button>
       </SidebarFooter>
     </Sidebar>
   );

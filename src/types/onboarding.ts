@@ -101,6 +101,21 @@ export interface SharedDocument {
   description: string;
 }
 
+export interface ChecklistItem {
+  id: string;
+  projectId: string;
+  phaseName: string;
+  checklistLabel: string;
+  itemText: string;
+  checked: boolean;
+  adminOnly: boolean;
+  clientVisible: boolean;
+  pipefyFieldId?: string;
+  fieldType?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export interface OnboardingProject {
   id: string;
   clientName: string;
@@ -109,7 +124,7 @@ export interface OnboardingProject {
   status: ProjectStatus;
   currentPhase: string;
   progress: number;
-  nextMilestoneDate: string;
+  nextMilestoneDate: string | null;
   contractedModules: string[];
   summary: string;
   phases: ProjectPhase[];
@@ -119,4 +134,11 @@ export interface OnboardingProject {
   deliveries: DeliveryItem[];
   contacts: ProjectContact[];
   documents: SharedDocument[];
+  checklistItems: ChecklistItem[];
+  createdAt: string;
+  kickoffDate: string | null;
+  contractedPoints?: number;
+  activePoints?: number;
+  systemUsage?: number;
+  nativeChecklistStates?: Record<string, boolean>;
 }
