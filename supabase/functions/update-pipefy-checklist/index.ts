@@ -51,12 +51,16 @@ serve(async (req) => {
     // IDOR Security Check (Prevenir que cliente A edite projeto de cliente B)
     const requesterEmail = user.email || '';
     const isAdmin = requesterEmail.toLowerCase().endsWith('@cogtive.com');
-    if (!isAdmin && project.client_email !== requesterEmail) {
+    if (!isAdmin && project.client_email?.toLowerCase() !== requesterEmail.toLowerCase()) {
        throw new Error("Acesso Negado: Você não tem permissão para modificar checklists de outro projeto.");
     }
 
     // 3. Atualização local (BD Supabase)
     // Se newItemText vier undefined, significa que é um checkbox do nosso parseador de texto novo!
+    if (!isAdmin && (!item.client_visible || item.admin_only || fieldType === 'attachment')) {
+       throw new Error("Acesso Negado: Este item não pode ser modificado pelo cliente.");
+    }
+
     const updatePayload = (fieldType === 'text' && newItemText !== undefined)
       ? { item_text: newItemText, checked: !!newItemText } 
       : { checked: isChecked };

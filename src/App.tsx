@@ -28,7 +28,7 @@ const queryClient = new QueryClient();
 const RoleBasedRedirect = () => {
   const { session } = useAuth();
   const isAdmin = session?.user?.email?.endsWith('@cogtive.com');
-  return <Navigate to={isAdmin ? "/admin" : "/client"} replace />;
+  return <Navigate to={isAdmin ? "/admin/clients" : "/client"} replace />;
 };
 
 const App = () => (

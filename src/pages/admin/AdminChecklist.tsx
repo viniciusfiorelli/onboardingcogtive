@@ -719,7 +719,10 @@ export default function AdminChecklist() {
     if (pendingAction.type === 'text') {
       executeTextUpdate(pendingAction.itemId, pendingAction.newText!);
     } else {
-      executeCheckUpdate(pendingAction.itemId, pendingAction.newStatus!);
+      const targetStatus = pendingAction.newStatus!;
+      const currentStatus = !targetStatus;
+      const itemText = p?.checklistItems?.find(i => i.id === pendingAction.itemId)?.itemText || 'Item';
+      executeCheckUpdate(pendingAction.itemId, currentStatus, itemText);
     }
     setPendingAction(null);
   };

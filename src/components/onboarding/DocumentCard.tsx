@@ -41,8 +41,10 @@ export function DocumentCard({ document, index = 0 }: DocumentCardProps) {
               </div>
               <p className="text-xs text-muted-foreground leading-relaxed mt-1">{document.description}</p>
             </div>
-            <Button variant="ghost" size="sm" className="shrink-0 text-primary hover:text-primary hover:bg-primary/10 gap-1.5">
-              <ExternalLink className="w-3.5 h-3.5" /> Abrir
+            <Button asChild variant="ghost" size="sm" className="shrink-0 text-primary hover:text-primary hover:bg-primary/10 gap-1.5">
+              <a href={document.fileUrl} target="_blank" rel="noopener noreferrer">
+                <ExternalLink className="w-3.5 h-3.5" /> Abrir
+              </a>
             </Button>
           </div>
         </CardContent>

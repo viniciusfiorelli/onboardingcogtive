@@ -1,14 +1,29 @@
-import { useState, useMemo, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useProjectData } from '@/hooks/useProjectData';
 import { useAdmin } from '@/contexts/AdminContext';
 import { Card, CardContent } from '@/components/ui/card';
-import { CheckCircle2, AlertTriangle, PlayCircle, Loader2, Target, Check, Sparkles, MapPin } from 'lucide-react';
+import { CheckCircle2, AlertTriangle, PlayCircle, Loader2, Target, Check, Sparkles, MapPin, ChevronRight } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'sonner';
 import { supabase } from '@/lib/supabase';
 import { useActivityLog } from '@/hooks/useActivityLog';
 import { generatePreparationTemplate } from '@/utils/checklistEngine';
 import { shootConfetti } from '@/utils/confetti';
+
+function PhaseCompletionConfetti({ progressRatio, totalItems, currentPhase }: { progressRatio: number; totalItems: number; currentPhase?: string }) {
+  const [hasShotConfetti, setHasShotConfetti] = useState(false);
+
+  useEffect(() => {
+    if (progressRatio === 100 && totalItems > 0 && !hasShotConfetti && currentPhase !== 'Concluído') {
+       shootConfetti();
+       setHasShotConfetti(true);
+    } else if (progressRatio < 100) {
+       setHasShotConfetti(false);
+    }
+  }, [progressRatio, totalItems, hasShotConfetti, currentPhase]);
+
+  return null;
+}
 
 export default function PendingIssues() {
   const { isAdmin, selectedProjectId } = useAdmin();
@@ -84,7 +99,7 @@ export default function PendingIssues() {
   if (isLoading) return <div className="flex justify-center py-20"><div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin"/></div>;
   if (error || !p) return <div className="text-center py-20 text-destructive font-bold">Erro de conexão visual.</div>;
 
-  const allChecklists = p.checklistItems || [];
+  const allChecklists = p?.checklistItems || [];
 
   const norm = (s: string) => s ? s.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim() : "";
   const isPreparacao = norm(p.currentPhase || '') === norm('Preparação') || norm(p.currentPhase || '') === norm('Preparação em foco');
@@ -94,9 +109,8 @@ export default function PendingIssues() {
   let completedItems = 0;
   let hasItems = false;
 
-  if (isPreparacao) {
+  if (isPreparacao && p) {
       // 1. Extrair Variáveis Reais do Kick-off
-      const getKickoffVal = (label: string) => allChecklists.find(i => i.phaseName === 'Kick-off' && normalize(i.checklistLabel || '').includes(normalize(label)) && i.checked)?.itemText || '';
       const { visibleItems, grouped } = generatePreparationTemplate(p, optimisticChecks);
       groupedChecklists = grouped;
       
@@ -106,11 +120,11 @@ export default function PendingIssues() {
          return state;
       }).length;
       hasItems = visibleItems.length > 0;
-  } else {
+  } else if (p) {
       // Lógica Comum (Outras Fases leem do Pipefy)
       const currentPhaseChecklists = allChecklists.filter(item => {
         if (isAdmin) return item.phaseName === p.currentPhase;
-        return !item.adminOnly && item.phaseName === p.currentPhase;
+        return !item.adminOnly && item.clientVisible && item.phaseName === p.currentPhase;
       });
 
       groupedChecklists = currentPhaseChecklists.reduce((acc, item) => {
@@ -129,17 +143,6 @@ export default function PendingIssues() {
 
   const progressRatio = totalItems === 0 ? 0 : (completedItems / totalItems) * 100;
 
-  // Gamification: Efeito de Celebração de Fase Concluída
-  const [hasShotConfetti, setHasShotConfetti] = useState(false);
-  useEffect(() => {
-    if (progressRatio === 100 && totalItems > 0 && !hasShotConfetti && p?.currentPhase !== 'Concluído') {
-       shootConfetti();
-       setHasShotConfetti(true);
-    } else if (progressRatio < 100) {
-       setHasShotConfetti(false);
-    }
-  }, [progressRatio, totalItems, hasShotConfetti, p?.currentPhase]);
-
   // Texto customizado dependendo da fase (Ex: Operação Assistida)
   const isAssistida = p.currentPhase?.toLowerCase() === 'operação assistida' || p.currentPhase?.toLowerCase() === 'operacao assistida';
   const pageTitle = isAssistida ? "Sucesso & Operação" : "O que falta fazer?";
@@ -149,6 +152,7 @@ export default function PendingIssues() {
 
   return (
     <div className="space-y-8 max-w-4xl mx-auto pb-20">
+      <PhaseCompletionConfetti progressRatio={progressRatio} totalItems={totalItems} currentPhase={p.currentPhase} />
       
       {/* Header Focado */}
       <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} className="text-center space-y-4 mt-6">
