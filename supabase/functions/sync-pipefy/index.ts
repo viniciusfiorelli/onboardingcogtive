@@ -34,18 +34,42 @@ serve(async (req) => {
     const pipefyToken = Deno.env.get('PIPEFY_API_TOKEN');
     const pipeId = Deno.env.get('PIPEFY_PIPE_ID') || "306842929";
 
-    const query = `{ allCards(pipeId: "${pipeId}", first: 100) { edges { node { id title current_phase { name } fields { name value field { id label type options } phase_field { phase { name } } } } } } }`;
+    let hasMore = true;
+    let afterCursor: string | null = null;
+    const cards: any[] = [];
+    let page = 0;
 
-    const pipefyRes = await fetch("https://api.pipefy.com/graphql", {
-      method: "POST",
-      headers: { "Content-Type": "application/json", "Authorization": `Bearer ${pipefyToken}` },
-      body: JSON.stringify({ query })
-    });
+    while (hasMore && page < 20) {
+      page++;
+      console.log(`Buscando cartões do Pipefy... Cursor atual: ${afterCursor} (Página ${page})`);
+      const query = `{ allCards(pipeId: "${pipeId}", first: 50${afterCursor ? `, after: "${afterCursor}"` : ''}) { pageInfo { hasNextPage endCursor } edges { node { id title current_phase { name } fields { name value field { id label type options } phase_field { phase { name } } } } } } }`;
 
-    const pipefyData = await pipefyRes.json();
-    const cards = pipefyData.data?.allCards?.edges?.map((e: any) => e.node) || [];
-    
-    console.log(`Debug: Encontrados ${cards.length} cartões.`);
+      const pipefyRes = await fetch("https://api.pipefy.com/graphql", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "Authorization": `Bearer ${pipefyToken}` },
+        body: JSON.stringify({ query })
+      });
+
+      const pipefyData = await pipefyRes.json();
+      if (pipefyData.errors) {
+        throw new Error(`Erro na query do Pipefy: ${pipefyData.errors[0]?.message || 'Erro desconhecido'}`);
+      }
+
+      const currentEdges = pipefyData.data?.allCards?.edges || [];
+      currentEdges.forEach((e: any) => {
+        if (e.node) cards.push(e.node);
+      });
+
+      const pageInfo = pipefyData.data?.allCards?.pageInfo;
+      hasMore = pageInfo?.hasNextPage || false;
+      afterCursor = pageInfo?.endCursor || null;
+
+      if (currentEdges.length === 0) {
+        hasMore = false;
+      }
+    }
+
+    console.log(`Debug: Encontrados ${cards.length} cartões no total.`);
 
     if (cards.length > 0) {
       console.log(`Exemplo de campos do primeiro cartão (${cards[0].title}):`);
