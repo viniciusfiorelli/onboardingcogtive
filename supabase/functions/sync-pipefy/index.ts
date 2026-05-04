@@ -55,6 +55,17 @@ serve(async (req) => {
       }
     }
 
+    // Buscar as fases e campos da Pipe
+    console.log("Buscando a estrutura de fases e campos do Pipe...");
+    const pipeQuery = `{ pipe(id: "${pipeId}") { phases { id name fields { id label type options } } } }`;
+    const pipeRes = await fetch("https://api.pipefy.com/graphql", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "Authorization": `Bearer ${pipefyToken}` },
+      body: JSON.stringify({ query: pipeQuery })
+    });
+    const pipeData = await pipeRes.json();
+    const pipePhases = pipeData.data?.pipe?.phases || [];
+
     let hasMore = true;
     let afterCursor: string | null = null;
     const cards: any[] = [];
@@ -73,56 +84,48 @@ serve(async (req) => {
           cards.push(pipefyData.data.card);
        }
     } else {
-    while (hasMore && page < 5) {
-      page++;
-      console.log(`Buscando cartões do Pipefy... Cursor atual: ${afterCursor} (Página ${page})`);
-      const query = `{ allCards(pipeId: "${pipeId}", first: 50${afterCursor ? `, after: "${afterCursor}"` : ''}) { pageInfo { hasNextPage endCursor } edges { node { id title current_phase { name } fields { name value field { id label type options } phase_field { phase { name } } } } } } }`;
+       while (hasMore && page < 5) {
+         page++;
+         console.log(`Buscando cartões do Pipefy... Cursor atual: ${afterCursor} (Página ${page})`);
+         const query = `{ allCards(pipeId: "${pipeId}", first: 50${afterCursor ? `, after: "${afterCursor}"` : ''}) { pageInfo { hasNextPage endCursor } edges { node { id title current_phase { name } fields { name value field { id label type options } phase_field { phase { name } } } } } } }`;
 
-      const pipefyRes = await fetch("https://api.pipefy.com/graphql", {
-        method: "POST",
-        headers: { "Content-Type": "application/json", "Authorization": `Bearer ${pipefyToken}` },
-        body: JSON.stringify({ query })
-      });
+         const pipefyRes = await fetch("https://api.pipefy.com/graphql", {
+           method: "POST",
+           headers: { "Content-Type": "application/json", "Authorization": `Bearer ${pipefyToken}` },
+           body: JSON.stringify({ query })
+         });
 
-      const pipefyData = await pipefyRes.json();
+         const pipefyData = await pipefyRes.json();
 
-      // Check for auth/token errors
-      if (pipefyData.error === 'invalid_token' || pipefyData.state === 'unauthorized') {
-        throw new Error(`Token do Pipefy inválido ou expirado. Verifique o secret PIPEFY_API_TOKEN no Supabase.`);
-      }
+         if (pipefyData.error === 'invalid_token' || pipefyData.state === 'unauthorized') {
+           throw new Error(`Token do Pipefy inválido ou expirado. Verifique o secret PIPEFY_API_TOKEN no Supabase.`);
+         }
 
-      if (pipefyData.errors) {
-        throw new Error(`Erro na query do Pipefy: ${pipefyData.errors[0]?.message || JSON.stringify(pipefyData.errors)}`);
-      }
+         if (pipefyData.errors) {
+           throw new Error(`Erro na query do Pipefy: ${pipefyData.errors[0]?.message || JSON.stringify(pipefyData.errors)}`);
+         }
 
-      if (!pipefyData.data) {
-        console.error("Resposta inesperada do Pipefy:", JSON.stringify(pipefyData));
-        throw new Error(`Resposta inesperada do Pipefy (sem campo data). Verifique o token PIPEFY_API_TOKEN.`);
-      }
+         if (!pipefyData.data) {
+           console.error("Resposta inesperada do Pipefy:", JSON.stringify(pipefyData));
+           throw new Error(`Resposta inesperada do Pipefy (sem campo data). Verifique o token PIPEFY_API_TOKEN.`);
+         }
 
-      const currentEdges = pipefyData.data?.allCards?.edges || [];
-      currentEdges.forEach((e: any) => {
-        if (e.node) cards.push(e.node);
-      });
+         const currentEdges = pipefyData.data?.allCards?.edges || [];
+         currentEdges.forEach((e: any) => {
+           if (e.node) cards.push(e.node);
+         });
 
-      const pageInfo = pipefyData.data?.allCards?.pageInfo;
-      hasMore = pageInfo?.hasNextPage || false;
-      afterCursor = pageInfo?.endCursor || null;
+         const pageInfo = pipefyData.data?.allCards?.pageInfo;
+         hasMore = pageInfo?.hasNextPage || false;
+         afterCursor = pageInfo?.endCursor || null;
 
-      if (currentEdges.length === 0) {
-        hasMore = false;
-      }
-    }
+         if (currentEdges.length === 0) {
+           hasMore = false;
+         }
+       }
     }
 
     console.log(`Debug: Encontrados ${cards.length} cartões no total.`);
-
-    if (cards.length > 0) {
-      console.log(`Exemplo de campos do primeiro cartão (${cards[0].title}):`);
-      cards[0].fields.forEach((f: any) => {
-        console.log(` - Campo: "${f.name}" | ID: "${f.field?.id}" | Tipo: "${f.field?.type}" | Fase: "${f.phase_field?.phase?.name}"`);
-      });
-    }
 
     // Helper para mapear os nomes das fases do Pipefy para o Enum de 'status' do BD
     const mapPhaseToStatus = (phaseName: string): string => {
@@ -137,11 +140,10 @@ serve(async (req) => {
       if (p.includes('stand') || p.includes('aguardando')) return 'aguardando_cliente';
       if (p.includes('correcao')) return 'em_preparacao';
       
-      // Default / Fallback para Kick-off, Triagem, Preparação...
       return 'em_preparacao';
     };
 
-    // Preparar Upsert de Projetos (isso já sabemos que funciona)
+    // Preparar Upsert de Projetos
     const projectBatch = cards.map((card: any) => {
       const phaseName = card.current_phase?.name || '';
       return {
@@ -161,169 +163,121 @@ serve(async (req) => {
     const idMap = new Map();
     syncedProjects?.forEach(p => idMap.set(p.pipefy_card_id, p.id));
 
-    // Lógica revisada para aceitar MAIS tipos de campo se estiverem próximos
     const allChecklistRows: any[] = [];
-    const projectIds = [];
+    const projectIds: any[] = [];
 
     for (const card of cards) {
       const projectId = idMap.get(String(card.id));
       if (!projectId) continue;
       projectIds.push(projectId);
 
-      const checklistFields = card.fields.filter((f: any) => {
-        if (!f.field) return false;
-        if (IGNORED_CHECKLIST_FIELDS.includes(f.field.id)) return false;
-        return true;
+      // Criar mapa de campos do cartão
+      const cardFieldsMap = new Map();
+      card.fields?.forEach((f: any) => {
+        if (f.field?.id) {
+           cardFieldsMap.set(f.field.id, f);
+        }
       });
 
-      console.log(`Cartão "${card.title}": identifiquei ${checklistFields.length} campos de checklist.`);
-
-      for (const cf of checklistFields) {
-        const type = cf.field.type?.toLowerCase() || "";
-        const label = cf.field.label || cf.name;
-        const pipefyFieldId = cf.field.id;
+      // Loop sobre cada fase e campo da Pipefy
+      for (const phase of pipePhases) {
+        const phaseName = phase.name;
         
-        // Auto-hide logic for technical/internal fields
-        const technicalPatterns: any[] = [];
-        const isTechnical = false;
-        const clientVisible = true;
+        for (const f of phase.fields || []) {
+          // Ignorar os statements e banners informativos
+          if (f.type?.toLowerCase() === 'statement' || f.id.toLowerCase().includes('statement')) {
+            continue;
+          }
 
-        const row = {
-          project_id: projectId,
-          phase_name: cf.phase_field?.phase?.name || card.current_phase?.name || 'Geral',
-          checklist_label: label,
-          pipefy_field_id: pipefyFieldId,
-          item_text: '',
-          checked: false,
-          client_visible: clientVisible,
-          field_type: type.includes('text') ? 'text' : type.includes('radio') ? 'radio' : type.includes('attachment') ? 'attachment' : 'checklist'
-        };
+          const label = f.label;
+          const pipefyFieldId = f.id;
+          const type = f.type?.toLowerCase() || "";
 
-        if (row.field_type === 'text') {
-           const rawText = cf.value || '';
-           const lines = String(rawText).split('\n');
-           
-           let currentHeader = label; 
-           let addedItems = false;
-           let mergedLines: { text: string; header: string }[] = [];
-           let pendingString = "";
-           
-           for(let i = 0; i < lines.length; i++) {
-              let l = lines[i].trim();
-              if(!l) continue;
-              
-              const cleanL = l.replace(/\*+/g, '').trim(); 
-              
-              if (cleanL.match(/^[A-ZÁÉÍÓÚÂÊÔÕÇ\s\_]+$/) && cleanL.length < 40) {
-                 if (pendingString) mergedLines.push({ text: pendingString, header: currentHeader });
-                 pendingString = "";
-                 currentHeader = cleanL;
-                 continue;
-              }
+          const cf = cardFieldsMap.get(pipefyFieldId);
+          
+          const clientVisible = true;
+          
+          const isTextLike = type.includes('text') || type.includes('date') || type.includes('assignee') || type.includes('phone') || type.includes('email') || type.includes('number');
+          const isRadioLike = type.includes('radio') || type.includes('select') || type.includes('dropdown');
 
-              if (l.startsWith('- [') && pendingString) {
-                 pendingString += "\n" + l;
-              } 
-              else if (l.startsWith('⚠️') || l.startsWith('✅') || l.match(/^\[(x| |FEITO|OK)\]/i)) {
-                 if (pendingString) mergedLines.push({ text: pendingString, header: currentHeader });
-                 pendingString = l;
-              }
-              else { 
-                 if (pendingString) { pendingString += "\n" + l; }
-                 else { pendingString = l; }
-              }
-           }
-           if (pendingString) mergedLines.push({ text: pendingString, header: currentHeader });
+          const row = {
+            project_id: projectId,
+            phase_name: phaseName,
+            checklist_label: label,
+            pipefy_field_id: pipefyFieldId,
+            item_text: '',
+            checked: false,
+            client_visible: clientVisible,
+            field_type: isTextLike ? 'text' : isRadioLike ? 'radio' : type.includes('attachment') ? 'attachment' : 'checklist'
+          };
 
-           mergedLines.forEach(item => {
-               if (item.text.length > 3) {
-                  // ONLY treat as task if it starts with known markers
-                  const isTask = /^(⚠️|✅|\[(x| |FEITO|OK)\]|\-? \[)/i.test(item.text.trim());
-                  
-                  if (isTask) {
-                     const isChecked = /(\[x\]|\[X\]|\[FEITO\]|\[OK\]|✅)/i.test(item.text);
-                     let cleanText = item.text.replace(/^[⚠️✅]\s*/, '')
-                                              .replace(/^-\s*\[x\]\s*/i, '')
-                                              .replace(/^-\s*\[\s\]\s*/, '')
-                                              .replace(/^\[FEITO\]\s*/i, '').trim();
-
-                     allChecklistRows.push({
-                        ...row,
-                        checklist_label: item.header,
-                        item_text: cleanText,
-                        checked: isChecked
-                     });
-                     addedItems = true;
+          if (cf) {
+             const rawText = cf.value || '';
+             
+             if (row.field_type === 'text') {
+                row.item_text = rawText;
+                row.checked = /(\[x\]|\[X\]|\[FEITO\]|\[OK\]|✅)/i.test(rawText);
+                allChecklistRows.push(row);
+             } else if (row.field_type === 'attachment') {
+                let urls: string[] = [];
+                if (cf.value) {
+                  try { urls = JSON.parse(cf.value); } catch { urls = [cf.value]; }
+                }
+                if (Array.isArray(urls)) {
+                  urls.forEach((url, i) => {
+                    if (typeof url === 'string') {
+                       allChecklistRows.push({ 
+                         ...row, 
+                         item_text: url, 
+                         checked: true,
+                         checklist_label: `${label} - Anexo ${i+1}`
+                       });
+                    }
+                  });
+                }
+             } else if (f.options && f.options.length > 0) {
+                let selectedValues: string[] = [];
+                if (cf.value) {
+                  try {
+                    const parsed = JSON.parse(cf.value);
+                    if (Array.isArray(parsed)) {
+                      selectedValues = parsed.map(v => String(v));
+                    } else {
+                      selectedValues = [String(parsed)];
+                    }
+                  } catch {
+                    selectedValues = [String(cf.value)];
                   }
-               }
-           });
-
-           if (!addedItems && rawText.length > 0) {
-               row.item_text = rawText;
-              row.checked = /(\[x\]|\[X\]|\[FEITO\]|\[OK\]|✅)/i.test(rawText);
-              allChecklistRows.push(row);
-           }
-        } else if (row.field_type === 'attachment') {
-          let urls: string[] = [];
-          if (cf.value) {
-            try { urls = JSON.parse(cf.value); } catch { urls = [cf.value]; }
+                }
+                f.options.forEach((opt: string) => {
+                  allChecklistRows.push({ 
+                    ...row, 
+                    item_text: opt, 
+                    checked: selectedValues.includes(opt) 
+                  });
+                });
+             } else {
+                row.item_text = cf.value || '';
+                row.checked = !!cf.value;
+                allChecklistRows.push(row);
+             }
+          } else {
+             // Fallback para campos da Pipe vazios no card
+             if (f.options && f.options.length > 0) {
+                f.options.forEach((opt: string) => {
+                   allChecklistRows.push({
+                      ...row,
+                      item_text: opt,
+                      checked: false
+                   });
+                });
+             } else {
+                allChecklistRows.push(row);
+             }
           }
-          if (Array.isArray(urls)) {
-            urls.forEach((url, i) => {
-              if (typeof url === 'string') {
-                 // Try to guess a filename for visual display
-                 let niceName = label;
-                 try {
-                     const parts = url.split('/');
-                     let fn = parts[parts.length - 1];
-                     if (fn.includes('?')) fn = fn.split('?')[0];
-                     if (fn && fn.length > 5) niceName = decodeURIComponent(fn);
-                 } catch {}
-                 
-                 allChecklistRows.push({ 
-                   ...row, 
-                   item_text: url, // url becomes the body
-                   checked: true,
-                   checklist_label: `${label} - ${niceName}` // Keep the field label + filename
-                 });
-              }
-            });
-          }
-        } else if (cf.field.options && cf.field.options.length > 0) {
-          // It's an option-based field (radio, select, dropdown, checklist)
-          let selectedValues: string[] = [];
-          if (cf.value) {
-            try {
-              const parsed = JSON.parse(cf.value);
-              if (Array.isArray(parsed)) {
-                selectedValues = parsed.map(v => String(v));
-              } else {
-                selectedValues = [String(parsed)];
-              }
-            } catch {
-              selectedValues = [String(cf.value)];
-            }
-          }
-          cf.field.options.forEach((opt: string) => {
-            allChecklistRows.push({ 
-              ...row, 
-              item_text: opt, 
-              checked: selectedValues.includes(opt) 
-            });
-          });
-        } else if (row.field_type === 'radio') {
-          row.item_text = cf.value || '';
-          row.checked = !!cf.value;
-          allChecklistRows.push(row);
-        } else {
-          row.item_text = cf.value || '';
-          row.checked = !!cf.value;
-          allChecklistRows.push(row);
         }
       }
     }
-
-    console.log(`Total de linhas de checklist preparadas: ${allChecklistRows.length}`);
 
     if (projectIds.length > 0) {
       const { error: delErr } = await supabaseClient.from('onboarding_checklist_items').delete().in('project_id', projectIds);
