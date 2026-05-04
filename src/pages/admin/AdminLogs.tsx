@@ -41,13 +41,13 @@ export default function AdminLogs() {
     const map = new Map<string, { id: string, name: string, logCount: number, lastActivity: Date }>();
     
     logs.forEach(log => {
-      if (!log.onboarding_projects) return;
+      const pId = log.onboarding_projects?.id || 'system';
+      const pName = log.onboarding_projects?.client_name || 'Sistema / Sincronização';
       
-      const pId = log.onboarding_projects.id;
       if (!map.has(pId)) {
         map.set(pId, {
           id: pId,
-          name: log.onboarding_projects.client_name,
+          name: pName,
           logCount: 0,
           lastActivity: new Date(log.created_at)
         });
@@ -68,6 +68,9 @@ export default function AdminLogs() {
 
   const filteredLogs = useMemo(() => {
     if (!selectedProjectId) return [];
+    if (selectedProjectId === 'system') {
+      return logs.filter(log => !log.onboarding_projects);
+    }
     return logs.filter(log => log.onboarding_projects?.id === selectedProjectId);
   }, [logs, selectedProjectId]);
 
@@ -146,8 +149,8 @@ export default function AdminLogs() {
                   >
                     <div className="p-5 flex flex-col h-full">
                       <div className="flex justify-between items-start mb-4">
-                        <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-black shadow-inner">
-                          {p.name.charAt(0).toUpperCase()}
+                        <div className={`w-10 h-10 rounded-full flex items-center justify-center text-white font-black shadow-inner ${p.id === 'system' ? 'bg-amber-500' : 'bg-primary/10 text-primary'}`}>
+                          {p.id === 'system' ? <Bot className="w-5 h-5" /> : p.name.charAt(0).toUpperCase()}
                         </div>
                         <div className="flex items-center gap-1.5 px-2 py-1 rounded-full bg-white/5 border border-white/10 text-[10px] uppercase font-bold text-muted-foreground">
                           <Hash className="w-3 h-3" /> {p.logCount} registros
