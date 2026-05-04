@@ -195,7 +195,9 @@ serve(async (req) => {
 
           const cf = cardFieldsMap.get(pipefyFieldId);
           
-          const clientVisible = true;
+          const TECHNICAL_REGEX = /bug|melhoria|solicitação.*produto|monitoring|interno|id_pipefy|alinhamento.*interno|revisita|atraso|🔴|wrap-up|pendência|orientação para movimentação/i;
+          const isTechnical = TECHNICAL_REGEX.test(label || '') || TECHNICAL_REGEX.test(pipefyFieldId || '');
+          const clientVisible = !isTechnical;
           
           const isTextLike = type.includes('text') || type.includes('date') || type.includes('assignee') || type.includes('phone') || type.includes('email') || type.includes('number');
           const isRadioLike = type.includes('radio') || type.includes('select') || type.includes('dropdown');
