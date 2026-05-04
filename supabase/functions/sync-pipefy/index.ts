@@ -195,7 +195,7 @@ serve(async (req) => {
 
           const cf = cardFieldsMap.get(pipefyFieldId);
           
-          const TECHNICAL_REGEX = /bug|melhoria|solicitação.*produto|monitoring|interno|id_pipefy|alinhamento.*interno|revisita|atraso|🔴|wrap-up|pendência|orientação para movimentação/i;
+          const TECHNICAL_REGEX = /bug|melhoria|solicitação.*produto|monitoring|interno|id_pipefy|alinhamento.*interno|revisita|atraso|🔴|wrap-up|pendência|orientação para movimentação|csm|resolvido/i;
           const isTechnical = TECHNICAL_REGEX.test(label || '') || TECHNICAL_REGEX.test(pipefyFieldId || '');
           const clientVisible = !isTechnical;
           
