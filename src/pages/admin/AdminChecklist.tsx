@@ -970,22 +970,35 @@ export default function AdminChecklist() {
               <Badge className="bg-primary/20 text-primary border-primary/30 font-bold">{progressPct}%</Badge>
             </div>
             <div className="divide-y divide-white/5">
-              {fieldGroups.map((group, idx) => {
-                const isHidden = !group.clientVisible;
-                return (
-                  <div key={group.label + idx} className={isHidden ? 'opacity-40 grayscale-[0.5] bg-black/40' : ''}>
-                    {group.isRadio ? (
-                      <RadioField group={group} optimisticChecks={optimisticChecks} loadingItems={loadingItems} onCheck={handleCheck} canEdit={true} isAdmin={true} onToggleVisibility={handleToggleVisibility} loadingVisibility={loadingVisibility} />
-                    ) : group.isText ? (
-                      <TextField item={group.items[0]} optimisticTexts={optimisticTexts} loadingItems={loadingItems} onUpdate={handleTextUpdate} canEdit={true} isAdmin={true} onToggleVisibility={handleToggleVisibility} loadingVisibility={loadingVisibility} />
-                    ) : (
-                      group.items.map(item => (
-                        <ChecklistRow key={item.id} item={item} optimisticChecks={optimisticChecks} loadingItems={loadingItems} onCheck={handleCheck} canEdit={true} isAdmin={true} onToggleVisibility={handleToggleVisibility} loadingVisibility={loadingVisibility} />
-                      ))
-                    )}
+              {fieldGroups.length === 0 ? (
+                <div className="p-12 text-center flex flex-col items-center justify-center">
+                  <div className="w-16 h-16 bg-white/5 rounded-full flex items-center justify-center mb-4 border border-white/10">
+                    <ClipboardList className="w-8 h-8 text-muted-foreground/40" />
                   </div>
-                );
-              })}
+                  <h3 className="text-xl font-bold text-white mb-2">Nenhum item encontrado</h3>
+                  <p className="text-muted-foreground text-sm max-w-sm">
+                    Este cliente ainda não possui um checklist sincronizado para esta fase. 
+                    Clique no botão <strong className="text-primary">Pipefy Sync</strong> no topo da página para importar os dados do Pipefy.
+                  </p>
+                </div>
+              ) : (
+                fieldGroups.map((group, idx) => {
+                  const isHidden = !group.clientVisible;
+                  return (
+                    <div key={group.label + idx} className={isHidden ? 'opacity-40 grayscale-[0.5] bg-black/40' : ''}>
+                      {group.isRadio ? (
+                        <RadioField group={group} optimisticChecks={optimisticChecks} loadingItems={loadingItems} onCheck={handleCheck} canEdit={true} isAdmin={true} onToggleVisibility={handleToggleVisibility} loadingVisibility={loadingVisibility} />
+                      ) : group.isText ? (
+                        <TextField item={group.items[0]} optimisticTexts={optimisticTexts} loadingItems={loadingItems} onUpdate={handleTextUpdate} canEdit={true} isAdmin={true} onToggleVisibility={handleToggleVisibility} loadingVisibility={loadingVisibility} />
+                      ) : (
+                        group.items.map(item => (
+                          <ChecklistRow key={item.id} item={item} optimisticChecks={optimisticChecks} loadingItems={loadingItems} onCheck={handleCheck} canEdit={true} isAdmin={true} onToggleVisibility={handleToggleVisibility} loadingVisibility={loadingVisibility} />
+                        ))
+                      )}
+                    </div>
+                  );
+                })
+              )}
             </div>
           </CardContent>
         </Card>

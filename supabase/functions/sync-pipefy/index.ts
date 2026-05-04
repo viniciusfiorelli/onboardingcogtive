@@ -270,15 +270,11 @@ serve(async (req) => {
                    allChecklistRows.push({
                       ...row,
                       item_text: opt,
-                      checked: false,
-                      client_visible: false
+                      checked: false
                    });
                 });
              } else {
-                allChecklistRows.push({
-                   ...row,
-                   client_visible: false
-                });
+                allChecklistRows.push(row);
              }
           }
         }
