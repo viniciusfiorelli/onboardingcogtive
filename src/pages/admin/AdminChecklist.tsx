@@ -35,7 +35,7 @@ import {
 } from "@/components/ui/alert-dialog";
 
 import { generatePreparationTemplate } from '@/utils/checklistEngine';
-import { shootConfetti } from '@/utils/confetti';
+
 
 // ─────────────────────────────────────────────────────────────
 // Types
@@ -586,16 +586,7 @@ export default function AdminChecklist() {
     };
   }, [p]);
 
-  // Gamification: Tiro de Confeti no Admin!
-  const [hasShotConfetti, setHasShotConfetti] = useState(false);
-  useEffect(() => {
-    if (phaseProgress.total >= 99 && !hasShotConfetti && p?.currentPhase !== 'Concluído') {
-       shootConfetti();
-       setHasShotConfetti(true);
-    } else if (phaseProgress.total < 99) {
-       setHasShotConfetti(false);
-    }
-  }, [phaseProgress.total, hasShotConfetti, p?.currentPhase]);
+
 
   const handleToggleVisibility = async (ids: string | string[], current: boolean) => {
     const idList = Array.isArray(ids) ? ids : [ids];
