@@ -602,6 +602,10 @@ export default function AdminChecklist() {
 
       if (error) throw error;
       toast.success(newVisible ? 'Item visível para o cliente' : 'Item oculto para o cliente');
+      
+      const actionDesc = newVisible ? 'tornou visível um ou mais itens' : 'ocultou um ou mais itens';
+      logActivity(p?.id || '', 'VISIBILITY_TOGGLE', `(Admin) ${actionDesc}`);
+      
       refetch();
     } catch (err: any) {
       toast.error('Erro ao alterar visibilidade');
@@ -626,6 +630,9 @@ export default function AdminChecklist() {
       });
       if (error) throw error;
       if (data && data.success === false) throw new Error(data.error);
+      
+      const itemTitle = p?.checklistItems?.find(i => i.id === itemId)?.checklistLabel || 'Item';
+      logActivity(p?.id || '', 'TEXT_UPDATE', `(Admin) alterou o texto de "${itemTitle}"`);
     } catch (err: any) {
       toast.error('Erro ao salvar texto', { description: err.message || 'Erro desconhecido' });
     } finally {
