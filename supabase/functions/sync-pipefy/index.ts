@@ -38,11 +38,41 @@ serve(async (req) => {
     const pipefyToken = Deno.env.get('PIPEFY_API_TOKEN');
     const pipeId = Deno.env.get('PIPEFY_PIPE_ID') || "306842929";
 
+    const body = await req.json().catch(() => ({}));
+    const { projectId } = body;
+    let cardIdsToFetch: string[] = [];
+
+    if (projectId) {
+      console.log(`Buscando no banco o pipefy_card_id para o projeto: ${projectId}`);
+      const { data: proj } = await supabaseClient
+        .from('onboarding_projects')
+        .select('pipefy_card_id')
+        .eq('id', projectId)
+        .maybeSingle();
+      if (proj?.pipefy_card_id) {
+         cardIdsToFetch = [String(proj.pipefy_card_id)];
+         console.log(`Identificado pipefy_card_id: ${proj.pipefy_card_id}`);
+      }
+    }
+
     let hasMore = true;
     let afterCursor: string | null = null;
     const cards: any[] = [];
     let page = 0;
 
+    if (cardIdsToFetch.length > 0) {
+       console.log(`Buscando cartão individual ${cardIdsToFetch[0]} do Pipefy...`);
+       const query = `{ card(id: "${cardIdsToFetch[0]}") { id title current_phase { name } fields { name value field { id label type options } phase_field { phase { name } } } } }`;
+       const pipefyRes = await fetch("https://api.pipefy.com/graphql", {
+         method: "POST",
+         headers: { "Content-Type": "application/json", "Authorization": `Bearer ${pipefyToken}` },
+         body: JSON.stringify({ query })
+       });
+       const pipefyData = await pipefyRes.json();
+       if (pipefyData.data?.card) {
+          cards.push(pipefyData.data.card);
+       }
+    } else {
     while (hasMore && page < 5) {
       page++;
       console.log(`Buscando cartões do Pipefy... Cursor atual: ${afterCursor} (Página ${page})`);
@@ -82,6 +112,7 @@ serve(async (req) => {
       if (currentEdges.length === 0) {
         hasMore = false;
       }
+    }
     }
 
     console.log(`Debug: Encontrados ${cards.length} cartões no total.`);

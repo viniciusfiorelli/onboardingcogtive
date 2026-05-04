@@ -23,7 +23,9 @@ export function AdminProjectSelector() {
     setIsSyncing(true);
     try {
       console.log('Iniciando sincronização via botão Pipefy Sync...');
-      const { data, error } = await supabase.functions.invoke('sync-pipefy');
+      const { data, error } = await supabase.functions.invoke('sync-pipefy', {
+        body: { projectId: selectedProjectId }
+      });
       
       console.log('Resposta da Função Sync:', { data, error });
       
