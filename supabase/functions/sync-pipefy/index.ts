@@ -142,11 +142,7 @@ serve(async (req) => {
       const checklistFields = card.fields.filter((f: any) => {
         if (!f.field) return false;
         if (IGNORED_CHECKLIST_FIELDS.includes(f.field.id)) return false;
-        const type = f.field.type?.toLowerCase() || "";
-        // Aceitar qualquer coisa que pareça rádio, checklist, texto, select, dropdown ou attachment
-        return type.includes('radio') || type.includes('checklist') || 
-               type.includes('text') || type.includes('attachment') ||
-               type.includes('select') || type.includes('dropdown');
+        return true;
       });
 
       console.log(`Cartão "${card.title}": identifiquei ${checklistFields.length} campos de checklist.`);
@@ -232,6 +228,7 @@ serve(async (req) => {
            });
 
            if (!addedItems && rawText.length > 0) {
+               row.item_text = rawText;
               row.checked = /(\[x\]|\[X\]|\[FEITO\]|\[OK\]|✅)/i.test(rawText);
               allChecklistRows.push(row);
            }
