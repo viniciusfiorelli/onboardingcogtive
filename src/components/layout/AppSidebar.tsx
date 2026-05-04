@@ -28,6 +28,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { motion } from 'framer-motion';
 
 const adminItems = [
+  { title: 'Visão Geral', url: '/admin', icon: LayoutDashboard },
   { title: 'Base de Clientes', url: '/admin/clients', icon: Building },
   { title: 'Visão do Cliente', url: '/admin/project', icon: LayoutDashboard },
   { title: 'Checklist', url: '/admin/checklist', icon: ClipboardList },
