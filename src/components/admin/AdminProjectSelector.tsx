@@ -31,6 +31,14 @@ export function AdminProjectSelector() {
         console.error('Erro retornado pelo Supabase:', error);
         throw error;
       }
+
+      // The edge function returns { success, message/error } in the body
+      if (data && data.success === false) {
+        console.error('Erro retornado pela função sync:', data.error);
+        throw new Error(data.error || 'Erro desconhecido na sincronização');
+      }
+      
+      console.log('Sincronização concluída:', data?.message);
       
       // Invalidate queries to refresh the data automatically across all dashboards
       await queryClient.invalidateQueries({ queryKey: ['allClients'] });

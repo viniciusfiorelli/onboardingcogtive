@@ -51,8 +51,19 @@ serve(async (req) => {
       });
 
       const pipefyData = await pipefyRes.json();
+
+      // Check for auth/token errors
+      if (pipefyData.error === 'invalid_token' || pipefyData.state === 'unauthorized') {
+        throw new Error(`Token do Pipefy inválido ou expirado. Verifique o secret PIPEFY_API_TOKEN no Supabase.`);
+      }
+
       if (pipefyData.errors) {
-        throw new Error(`Erro na query do Pipefy: ${pipefyData.errors[0]?.message || 'Erro desconhecido'}`);
+        throw new Error(`Erro na query do Pipefy: ${pipefyData.errors[0]?.message || JSON.stringify(pipefyData.errors)}`);
+      }
+
+      if (!pipefyData.data) {
+        console.error("Resposta inesperada do Pipefy:", JSON.stringify(pipefyData));
+        throw new Error(`Resposta inesperada do Pipefy (sem campo data). Verifique o token PIPEFY_API_TOKEN.`);
       }
 
       const currentEdges = pipefyData.data?.allCards?.edges || [];
