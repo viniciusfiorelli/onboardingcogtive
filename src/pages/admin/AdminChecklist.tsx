@@ -51,7 +51,7 @@ const JOURNEY_PHASES = [
 ];
 
 /** Regex patterns for technical/internal items that should be hidden from clients */
-const TECHNICAL_REGEX = /bug|melhoria|solicitação.*produto|monitoring|interno|id_pipefy|alinhamento.*interno|revisita|atraso|🔴|wrap-up|pendência/i;
+const TECHNICAL_REGEX = /__nonexistent_pattern__/i;
 
 type FieldGroup = {
   label: string;

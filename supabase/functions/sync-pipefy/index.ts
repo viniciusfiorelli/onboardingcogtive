@@ -6,10 +6,7 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 }
 
-const IGNORED_CHECKLIST_FIELDS = [
-  "orienta_o_de_movimenta_o_do_card", "orienta_o_de_movimenta_o_do_card_descri_o_sugerida", 
-  "orienta_o_para_movimenta_o_do_card", "crit_rio_para_avan_o_de_fase"
-];
+const IGNORED_CHECKLIST_FIELDS: string[] = [];
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: corsHeaders });
@@ -160,14 +157,9 @@ serve(async (req) => {
         const pipefyFieldId = cf.field.id;
         
         // Auto-hide logic for technical/internal fields
-        const technicalPatterns = [
-          /\bcard_id\b/i, /\buuid\b/i, /link.*câmera/i, /link.*camera/i, 
-          /\btoken\b/i, /backend/i, /setup técnico/i, /id_do_card/i,
-          /bug/i, /melhoria/i, /solicitação.*produto/i, /monitoring/i,
-          /interno/i, /id_pipefy/i, /alinhamento.*interno/i, /revisita/i, /atraso/i, /🔴/i
-        ];
-        const isTechnical = technicalPatterns.some(p => p.test(label) || p.test(pipefyFieldId));
-        const clientVisible = !isTechnical;
+        const technicalPatterns: any[] = [];
+        const isTechnical = false;
+        const clientVisible = true;
 
         const row = {
           project_id: projectId,
