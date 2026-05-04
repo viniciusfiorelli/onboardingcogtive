@@ -47,14 +47,7 @@ export function useProjectData() {
     queryFn: async () => {
       if (!isDataReady) throw new Error('Aguardando seleção de projeto.');
 
-      // Sincronização Silenciosa de Background: Simula Webhooks para manter a plataforma realtime
-      // Throttle de 5 minutos: Impede que o Pipefy exploda com Rate Limit API se múltiplos clientes mudarem de abas.
-      const lastSync = localStorage.getItem('@cogtive_last_sync');
-      const now = Date.now();
-      if (!lastSync || now - parseInt(lastSync, 10) > 1000 * 60 * 5) {
-          localStorage.setItem('@cogtive_last_sync', now.toString());
-          supabase.functions.invoke('sync-pipefy').catch(err => console.error('Erro no Auto-Sync:', err));
-      }
+
 
       // 2. Busca o projeto principal
       // 2. Busca o projeto principal
