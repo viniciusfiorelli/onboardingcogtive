@@ -21,8 +21,9 @@ serve(async (req) => {
     const authHeader = req.headers.get('Authorization');
     if (!authHeader) throw new Error("Acesso Negado: Token de Autorização Ausente.");
 
-    const supabaseAuth = createClient(Deno.env.get('SUPABASE_URL') ?? '', Deno.env.get('SUPABASE_ANON_KEY') ?? '', { global: { headers: { Authorization: authHeader } } });
-    const { data: { user }, error: authErr } = await supabaseAuth.auth.getUser();
+    const token = authHeader.replace('Bearer ', '');
+    const supabaseAuth = createClient(Deno.env.get('SUPABASE_URL') ?? '', Deno.env.get('SUPABASE_ANON_KEY') ?? '');
+    const { data: { user }, error: authErr } = await supabaseAuth.auth.getUser(token);
     if (authErr || !user) throw new Error("Acesso Negado: Token Inválido ou Expirado.");
 
     // Admin Privileged Connection
