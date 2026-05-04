@@ -752,7 +752,7 @@ export default function AdminChecklist() {
   useEffect(() => {
     const current = phaseTabs.find(t => t.isCurrentPhase);
     setSelectedPhase(current?.phaseName ?? phaseTabs[0]?.phaseName ?? null);
-  }, [phaseTabs, p]);
+  }, [p?.id, phaseTabs]);
 
   // ── Guards ────────────────────────────────────────────────
   if (isAdmin && !selectedProjectId) {
@@ -917,7 +917,7 @@ export default function AdminChecklist() {
    * THE MANAGEMENT VIEW (Admin View)
    */
   const renderAdminView = () => {
-    const activeTab = phaseTabs.find(t => t.phaseName === selectedPhase);
+    const activeTab = phaseTabs.find(t => normalize(t.phaseName) === normalize(selectedPhase || ''));
     const items = activeTab?.items ?? [];
     const fieldGroups = groupByField(items);
 
@@ -954,7 +954,7 @@ export default function AdminChecklist() {
                 key={tab.phaseName}
                 onClick={() => setSelectedPhase(tab.phaseName)}
                 className={`px-4 py-2 rounded-xl border text-xs font-bold transition-all
-                  ${tab.phaseName === selectedPhase ? 'bg-primary/20 border-primary text-primary' : 'bg-white/5 border-white/10 text-muted-foreground hover:text-white'}
+                  ${normalize(tab.phaseName) === normalize(selectedPhase || '') ? 'bg-primary/20 border-primary text-primary' : 'bg-white/5 border-white/10 text-muted-foreground hover:text-white'}
                 `}
               >
                 {tab.phaseName}
