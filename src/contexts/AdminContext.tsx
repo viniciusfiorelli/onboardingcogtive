@@ -19,12 +19,18 @@ export function AdminProvider({ children }: { children: React.ReactNode }) {
   // Verifica se o usuário logado é da Cogtive
   const isAdmin = checkIsAdmin(userEmail);
 
-  const [selectedProjectId, setSelectedProjectId] = useState<string | null>(null);
+  // Inicializa o estado a partir do localStorage para manter entre F5
+  const [selectedProjectId, setSelectedProjectId] = useState<string | null>(() => {
+    return localStorage.getItem('success_hub_admin_selected_project');
+  });
 
-  // Log de mudança de seleção (apenas em dev)
+  // Persiste a mudança no localStorage
   useEffect(() => {
     if (selectedProjectId) {
-      console.log('AdminContext: Projeto selecionado alterado para:', selectedProjectId);
+      localStorage.setItem('success_hub_admin_selected_project', selectedProjectId);
+      console.log('AdminContext: Projeto selecionado salvo no storage:', selectedProjectId);
+    } else {
+      localStorage.removeItem('success_hub_admin_selected_project');
     }
   }, [selectedProjectId]);
 
@@ -32,6 +38,7 @@ export function AdminProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     if (!isAdmin) {
       setSelectedProjectId(null);
+      localStorage.removeItem('success_hub_admin_selected_project');
     }
   }, [isAdmin]);
 
