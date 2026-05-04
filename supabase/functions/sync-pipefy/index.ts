@@ -282,13 +282,21 @@ serve(async (req) => {
     }
 
     if (projectIds.length > 0) {
-      const { error: delErr } = await supabaseClient.from('onboarding_checklist_items').delete().in('project_id', projectIds);
-      if (delErr) console.error("Erro ao deletar antigos:", delErr);
+      // Deletar em chunks de 50 projetos
+      for (let i = 0; i < projectIds.length; i += 50) {
+        const chunk = projectIds.slice(i, i + 50);
+        const { error: delErr } = await supabaseClient.from('onboarding_checklist_items').delete().in('project_id', chunk);
+        if (delErr) console.error("Erro ao deletar antigos:", delErr);
+      }
       
-      const { error: insErr } = await supabaseClient.from('onboarding_checklist_items').insert(allChecklistRows);
-      if (insErr) {
-        console.error("Erro ao inserir novos itens:", insErr);
-        throw new Error(`Erro de Inserção: ${insErr.message}`);
+      // Inserir em chunks de 1000 linhas
+      for (let i = 0; i < allChecklistRows.length; i += 1000) {
+        const chunk = allChecklistRows.slice(i, i + 1000);
+        const { error: insErr } = await supabaseClient.from('onboarding_checklist_items').insert(chunk);
+        if (insErr) {
+          console.error("Erro ao inserir novos itens:", insErr);
+          throw new Error(`Erro de Inserção: ${insErr.message}`);
+        }
       }
     }
 
