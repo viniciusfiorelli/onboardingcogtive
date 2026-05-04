@@ -13,11 +13,29 @@ import { useState } from 'react';
 import { supabase } from '@/lib/supabase';
 import { useQueryClient } from '@tanstack/react-query';
 
+import { useNavigate, useLocation } from 'react-router-dom';
+
 export function AdminProjectSelector() {
   const { isAdmin, selectedProjectId, setSelectedProjectId } = useAdmin();
   const { data: clients, isLoading, error } = useAllClients();
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
+  const location = useLocation();
   const [isSyncing, setIsSyncing] = useState(false);
+
+  const handleProjectChange = (val: string) => {
+    const newId = val === 'all' ? null : val;
+    setSelectedProjectId(newId);
+    
+    // Se selecionou um cliente e não está na aba de projetos, navega para lá
+    if (newId && location.pathname !== '/admin/project') {
+      navigate('/admin/project');
+    } 
+    // Se selecionou "Geral" e está em uma página de projeto, volta para a base
+    else if (!newId && location.pathname === '/admin/project') {
+      navigate('/admin/clients');
+    }
+  };
 
   const handleSync = async () => {
     setIsSyncing(true);
@@ -73,7 +91,7 @@ export function AdminProjectSelector() {
       ) : (
         <Select 
           value={selectedProjectId || 'all'} 
-          onValueChange={(val) => setSelectedProjectId(val === 'all' ? null : val)}
+          onValueChange={handleProjectChange}
         >
           <SelectTrigger className="w-[200px] md:w-[280px]">
             <SelectValue placeholder="Selecione um Cliente" />

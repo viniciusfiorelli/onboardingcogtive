@@ -36,11 +36,13 @@ export function AdminProvider({ children }: { children: React.ReactNode }) {
 
   // Se o usuário não for admin, ele nunca tem um "cliente selecionado" explícito (usa o próprio)
   useEffect(() => {
-    if (!isAdmin) {
+    // IMPORTANTE: Só resetar se tivermos uma sessão confirmada e NÃO for admin.
+    // Se a sessão for null (carregando), não limpamos o storage ainda.
+    if (session && !isAdmin) {
       setSelectedProjectId(null);
       localStorage.removeItem('success_hub_admin_selected_project');
     }
-  }, [isAdmin]);
+  }, [isAdmin, session]);
 
   return (
     <AdminContext.Provider value={{ isAdmin, selectedProjectId, setSelectedProjectId }}>
