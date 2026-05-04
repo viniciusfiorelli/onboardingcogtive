@@ -119,9 +119,12 @@ serve(async (req) => {
         .eq('project_id', item.project_id)
         .eq('pipefy_field_id', fieldId);
 
-      newValue = (siblings || [])
-        .filter(s => s.checked)
-        .map(s => s.item_text);
+      const activeSiblings = (siblings || []).filter(s => s.checked);
+      if (fieldType === 'radio' || activeSiblings.length <= 1) {
+        newValue = activeSiblings.length > 0 ? activeSiblings[0].item_text : "";
+      } else {
+        newValue = activeSiblings.map(s => s.item_text);
+      }
     }
 
     const mutation = `
