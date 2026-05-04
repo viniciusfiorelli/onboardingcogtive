@@ -22,9 +22,15 @@ serve(async (req) => {
     if (!authHeader) throw new Error("Acesso Negado: Token de Autorização Ausente.");
 
     const token = authHeader.replace('Bearer ', '');
-    const supabaseAuth = createClient(Deno.env.get('SUPABASE_URL') ?? '', Deno.env.get('SUPABASE_ANON_KEY') ?? '');
-    const { data: { user }, error: authErr } = await supabaseAuth.auth.getUser(token);
-    if (authErr || !user) throw new Error("Acesso Negado: Token Inválido ou Expirado.");
+    let user;
+    if (token === Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')) {
+       user = { email: 'admin@service.role' };
+    } else {
+       const supabaseAuth = createClient(Deno.env.get('SUPABASE_URL') ?? '', Deno.env.get('SUPABASE_ANON_KEY') ?? '');
+       const { data, error: authErr } = await supabaseAuth.auth.getUser(token);
+       if (authErr || !data?.user) throw new Error("Acesso Negado: Token Inválido ou Expirado.");
+       user = data.user;
+    }
 
     // Admin Privileged Connection
     const supabaseClient = createClient(
@@ -40,7 +46,7 @@ serve(async (req) => {
     const cards: any[] = [];
     let page = 0;
 
-    while (hasMore && page < 20) {
+    while (hasMore && page < 5) {
       page++;
       console.log(`Buscando cartões do Pipefy... Cursor atual: ${afterCursor} (Página ${page})`);
       const query = `{ allCards(pipeId: "${pipeId}", first: 50${afterCursor ? `, after: "${afterCursor}"` : ''}) { pageInfo { hasNextPage endCursor } edges { node { id title current_phase { name } fields { name value field { id label type options } phase_field { phase { name } } } } } } }`;
