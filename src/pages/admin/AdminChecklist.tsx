@@ -985,7 +985,7 @@ export default function AdminChecklist() {
                 fieldGroups.map((group, idx) => {
                   const isHidden = !group.clientVisible;
                   return (
-                    <div key={group.label + idx} className={isHidden ? 'opacity-40 grayscale-[0.5] bg-black/40' : ''}>
+                    <div key={group.label + idx} className={isHidden ? 'bg-black/20' : ''}>
                       {group.isRadio ? (
                         <RadioField group={group} optimisticChecks={optimisticChecks} loadingItems={loadingItems} onCheck={handleCheck} canEdit={true} isAdmin={true} onToggleVisibility={handleToggleVisibility} loadingVisibility={loadingVisibility} />
                       ) : group.isText ? (
