@@ -17,7 +17,6 @@ import Team from "./pages/Team";
 import Documents from "./pages/Documents";
 import NotFound from "./pages/NotFound";
 import ClientList from "./pages/admin/ClientList";
-import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminChecklist from "./pages/admin/AdminChecklist";
 import AdminLogs from "./pages/admin/AdminLogs";
 import AdminClientDocuments from "./pages/admin/AdminClientDocuments";
@@ -52,7 +51,7 @@ const App = () => (
               {/* Rotas de Admin (Apenas @cogtive.com) */}
               <Route element={<AdminRoute />}>
                 <Route path="/admin" element={<AppLayout />}>
-                  <Route index element={<AdminDashboard />} />
+                  <Route index element={<Navigate to="/admin/clients" replace />} />
                   <Route path="project" element={<Overview />} />
                   <Route path="pending" element={<PendingIssues />} />
                   <Route path="next-steps" element={<NextSteps />} />
