@@ -63,7 +63,7 @@ export default function Overview() {
   const openIssues = p.pendingIssues.filter(i => i.status !== 'concluida').length;
   
   // Sincronizar com Success Hub: contar apenas itens visíveis, da fase atual e NÃO técnicos
-  const technicalRegex = /bug|melhoria|solicitação.*produto|monitoring|interno|id_pipefy|alinhamento.*interno|revisita|atraso|🔴|wrap-up|pendência/i;
+  const technicalRegex = /bug|melhoria|solicitação.*produto|monitoring|interno|id_pipefy|alinhamento.*interno|revisita|atraso|🔴|wrap-up|pendência|orientação para movimentação|csm|resolvid|vendedor|field|id_|hidden|oculto|técnico|tecnico|ajuste|config|configuração|setup|fluxo|webhook|api|log|depuração|temp/i;
   
   let checklistPending = 0;
   
