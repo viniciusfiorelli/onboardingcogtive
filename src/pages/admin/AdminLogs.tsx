@@ -28,9 +28,6 @@ export default function AdminLogs() {
         .order('created_at', { ascending: false })
         .limit(1000);
         
-      console.log('DEBUG: Logs fetched:', data);
-      if (error) console.error('DEBUG: Error fetching logs:', error);
-        
       if (!error && data) {
         setLogs(data);
       }
