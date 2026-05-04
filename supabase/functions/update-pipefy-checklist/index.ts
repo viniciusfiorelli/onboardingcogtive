@@ -49,111 +49,132 @@ serve(async (req) => {
 
     if (!cardId || !fieldId) throw new Error("Item não está corretamente vinculado ao Pipefy (IDs faltando).");
 
-    // IDOR Security Check (Prevenir que cliente A edite projeto de cliente B)
-    const requesterEmail = user.email || '';
-    const isAdmin = requesterEmail.toLowerCase().endsWith('@cogtive.com');
-    if (!isAdmin && project.client_email?.toLowerCase() !== requesterEmail.toLowerCase()) {
-       throw new Error("Acesso Negado: Você não tem permissão para modificar checklists de outro projeto.");
+    // 2.1 CADEADO DIGITAL (Ponto 4)
+    if (project.sync_lock_at) {
+       const lockTime = new Date(project.sync_lock_at).getTime();
+       const now = new Date().getTime();
+       const diff = (now - lockTime) / 1000;
+       if (diff < 15) {
+          throw new Error("Sistema ocupado: salvando alteração anterior deste cliente. Aguarde 2 segundos.");
+       }
     }
 
-    // 3. Atualização local (BD Supabase)
-    // Se newItemText vier undefined, significa que é um checkbox do nosso parseador de texto novo!
-    if (!isAdmin && (!item.client_visible || item.admin_only || fieldType === 'attachment')) {
-       throw new Error("Acesso Negado: Este item não pode ser modificado pelo cliente.");
-    }
+    // Ativar Cadeado
+    await supabaseAdmin
+      .from('onboarding_projects')
+      .update({ sync_lock_at: new Date().toISOString() })
+      .eq('id', item.project_id);
 
-    const updatePayload = (fieldType === 'text' && newItemText !== undefined)
-      ? { item_text: newItemText, checked: !!newItemText } 
-      : { checked: isChecked };
-
-    const { error: updErr } = await supabaseAdmin
-      .from('onboarding_checklist_items')
-      .update(updatePayload)
-      .eq('id', checklistItemId);
-    
-    if (updErr) throw new Error(`Erro ao atualizar banco local: ${updErr.message}`);
-
-    // 4. Sincronização com Pipefy
-    const pipefyToken = Deno.env.get('PIPEFY_API_TOKEN');
-    if (!pipefyToken) throw new Error("PIPEFY_API_TOKEN não configurado.");
-
-    let newValue: any;
-    if (fieldType === 'text') {
-      if (newItemText !== undefined) {
-         newValue = newItemText; // Texto cru tradicional
-      } else {
-         // RECONSTRUÇÃO DO TEXTO EXCLUSIVO (Markdown Style com [FEITO])
-         const { data: siblings } = await supabaseAdmin
-           .from('onboarding_checklist_items')
-           .select('item_text, checked, checklist_label')
-           .eq('project_id', item.project_id)
-           .eq('pipefy_field_id', fieldId);
-
-         const grouped: Record<string, any[]> = {};
-         (siblings || []).forEach(s => {
-             const lbl = s.checklist_label || "Detalhes";
-             if (!grouped[lbl]) grouped[lbl] = [];
-             grouped[lbl].push(s);
-         });
-
-         let lines: string[] = [];
-         Object.entries(grouped).forEach(([header, items]) => {
-             // O header só deve ser impresso se ele não for o próprio nome do campo (se for idêntico não precisa, mas mal n faz)
-             lines.push(header);
-             items.forEach(it => {
-                 let prefix = it.checked ? "✅ [FEITO] " : "⚠️ ";
-                 // Limpa icones antigos do item_text puro pra nao duplicar
-                 let cleanItemText = it.item_text.replace(/^[⚠️\-*✅]\s*/, '').replace(/^\[FEITO\]\s*/i, '').trim();
-                 lines.push(`${prefix}${cleanItemText}`);
-             });
-             lines.push(""); // linha em branco entre divisões
-         });
-         
-         newValue = lines.join("\n").trim();
+    try {
+      // IDOR Security Check (Prevenir que cliente A edite projeto de cliente B)
+      const requesterEmail = user.email || '';
+      const isAdmin = requesterEmail.toLowerCase().endsWith('@cogtive.com');
+      if (!isAdmin && project.client_email?.toLowerCase() !== requesterEmail.toLowerCase()) {
+         throw new Error("Acesso Negado: Você não tem permissão para modificar checklists de outro projeto.");
       }
-    } else {
-      // Para itens de rádio/checklist múltiplos originais do Pipefy
-      const { data: siblings } = await supabaseAdmin
+
+      // 3. Atualização local (BD Supabase)
+      // Se newItemText vier undefined, significa que é um checkbox do nosso parseador de texto novo!
+      if (!isAdmin && (!item.client_visible || item.admin_only || fieldType === 'attachment')) {
+         throw new Error("Acesso Negado: Este item não pode ser modificado pelo cliente.");
+      }
+
+      const updatePayload = (fieldType === 'text' && newItemText !== undefined)
+        ? { item_text: newItemText, checked: !!newItemText } 
+        : { checked: isChecked };
+
+      const { error: updErr } = await supabaseAdmin
         .from('onboarding_checklist_items')
-        .select('item_text, checked')
-        .eq('project_id', item.project_id)
-        .eq('pipefy_field_id', fieldId);
+        .update(updatePayload)
+        .eq('id', checklistItemId);
+      
+      if (updErr) throw new Error(`Erro ao atualizar banco local: ${updErr.message}`);
 
-      const activeSiblings = (siblings || []).filter(s => s.checked);
-      if (fieldType === 'radio' || activeSiblings.length <= 1) {
-        newValue = activeSiblings.length > 0 ? activeSiblings[0].item_text : "";
+      // 4. Sincronização com Pipefy
+      const pipefyToken = Deno.env.get('PIPEFY_API_TOKEN');
+      if (!pipefyToken) throw new Error("PIPEFY_API_TOKEN não configurado.");
+
+      let newValue: any;
+      if (fieldType === 'text') {
+        if (newItemText !== undefined) {
+           newValue = newItemText; // Texto cru tradicional
+        } else {
+           // RECONSTRUÇÃO DO TEXTO EXCLUSIVO (Markdown Style com [FEITO])
+           const { data: siblings } = await supabaseAdmin
+             .from('onboarding_checklist_items')
+             .select('item_text, checked, checklist_label')
+             .eq('project_id', item.project_id)
+             .eq('pipefy_field_id', fieldId);
+
+           const grouped: Record<string, any[]> = {};
+           (siblings || []).forEach(s => {
+               const lbl = s.checklist_label || "Detalhes";
+               if (!grouped[lbl]) grouped[lbl] = [];
+               grouped[lbl].push(s);
+           });
+
+           let lines: string[] = [];
+           Object.entries(grouped).forEach(([header, items]) => {
+               lines.push(header);
+               items.forEach(it => {
+                   let prefix = it.checked ? "✅ [FEITO] " : "⚠️ ";
+                   let cleanItemText = it.item_text.replace(/^[⚠️\-*✅]\s*/, '').replace(/^\[FEITO\]\s*/i, '').trim();
+                   lines.push(`${prefix}${cleanItemText}`);
+               });
+               lines.push("");
+           });
+           
+           newValue = lines.join("\n").trim();
+        }
       } else {
-        newValue = activeSiblings.map(s => s.item_text);
-      }
-    }
+        const { data: siblings } = await supabaseAdmin
+          .from('onboarding_checklist_items')
+          .select('item_text, checked')
+          .eq('project_id', item.project_id)
+          .eq('pipefy_field_id', fieldId);
 
-    const mutation = `
-      mutation UpdateCardField($input: UpdateCardFieldInput!) {
-        updateCardField(input: $input) {
-          clientMutationId
-          success
+        const activeSiblings = (siblings || []).filter(s => s.checked);
+        if (fieldType === 'radio' || activeSiblings.length <= 1) {
+          newValue = activeSiblings.length > 0 ? activeSiblings[0].item_text : "";
+        } else {
+          newValue = activeSiblings.map(s => s.item_text);
         }
       }
-    `;
 
-    const pipefyRes = await fetch("https://api.pipefy.com/graphql", {
-      method: "POST",
-      headers: { "Content-Type": "application/json", "Authorization": `Bearer ${pipefyToken}` },
-      body: JSON.stringify({ 
-        query: mutation,
-        variables: {
-          input: {
-            card_id: cardId,
-            field_id: fieldId,
-            new_value: newValue
+      const mutation = `
+        mutation UpdateCardField($input: UpdateCardFieldInput!) {
+          updateCardField(input: $input) {
+            clientMutationId
+            success
           }
         }
-      })
-    });
+      `;
 
-    const pipefyData = await pipefyRes.json();
-    if (pipefyData.errors) {
-       throw new Error(`Pipefy Error: ${pipefyData.errors[0]?.message || 'Erro desconhecido'}`);
+      const pipefyRes = await fetch("https://api.pipefy.com/graphql", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "Authorization": `Bearer ${pipefyToken}` },
+        body: JSON.stringify({ 
+          query: mutation,
+          variables: {
+            input: {
+              card_id: cardId,
+              field_id: fieldId,
+              new_value: newValue
+            }
+          }
+        })
+      });
+
+      const pipefyData = await pipefyRes.json();
+      if (pipefyData.errors) {
+         throw new Error(`Pipefy Error: ${pipefyData.errors[0]?.message || 'Erro desconhecido'}`);
+      }
+    } finally {
+      // LIBERAR CADEADO (Sucesso ou Erro)
+      await supabaseAdmin
+        .from('onboarding_projects')
+        .update({ sync_lock_at: null })
+        .eq('id', item.project_id);
     }
 
     return new Response(JSON.stringify({ success: true }), { 

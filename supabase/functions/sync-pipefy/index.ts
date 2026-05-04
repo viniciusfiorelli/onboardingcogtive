@@ -42,6 +42,9 @@ serve(async (req) => {
     const { projectId } = body;
     let cardIdsToFetch: string[] = [];
 
+    // HELPER: Pausa para evitar overload
+    const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+
     if (projectId) {
       console.log(`Buscando no banco o pipefy_card_id para o projeto: ${projectId}`);
       const { data: proj } = await supabaseClient
@@ -53,6 +56,27 @@ serve(async (req) => {
          cardIdsToFetch = [String(proj.pipefy_card_id)];
          console.log(`Identificado pipefy_card_id: ${proj.pipefy_card_id}`);
       }
+    } else {
+       // BLOQUEIO: Sincronização Global apenas a cada 10 minutos
+       console.log("Checando cooldown de Sincronização Global...");
+       const { data: lastSync } = await supabaseClient
+         .from('activity_logs')
+         .select('created_at')
+         .eq('action_type', 'GLOBAL_SYNC')
+         .order('created_at', { ascending: false })
+         .limit(1)
+         .maybeSingle();
+
+       if (lastSync) {
+          const lastTime = new Date(lastSync.created_at).getTime();
+          const now = new Date().getTime();
+          const diffMinutes = (now - lastTime) / (1000 * 60);
+          
+          if (diffMinutes < 10) {
+             const remaining = Math.ceil(10 - diffMinutes);
+             throw new Error(`Sincronização Global bloqueada. Aguarde mais ${remaining} minuto(s) para evitar sobrecarga na API.`);
+          }
+       }
     }
 
     // Buscar as fases e campos da Pipe
@@ -86,6 +110,8 @@ serve(async (req) => {
     } else {
        while (hasMore && page < 5) {
          page++;
+         if (page > 1) await delay(500); // Pausa entre páginas do Pipefy
+
          console.log(`Buscando cartões do Pipefy... Cursor atual: ${afterCursor} (Página ${page})`);
          const query = `{ allCards(pipeId: "${pipeId}", first: 50${afterCursor ? `, after: "${afterCursor}"` : ''}) { pageInfo { hasNextPage endCursor } edges { node { id title current_phase { name } fields { name value field { id label type options } phase_field { phase { name } } } } } } }`;
 
@@ -291,12 +317,23 @@ serve(async (req) => {
       
       // Inserir em chunks de 1000 linhas
       for (let i = 0; i < allChecklistRows.length; i += 1000) {
+        if (i > 0) await delay(300); // Pausa entre chunks de banco
+
         const chunk = allChecklistRows.slice(i, i + 1000);
         const { error: insErr } = await supabaseClient.from('onboarding_checklist_items').insert(chunk);
         if (insErr) {
           console.error("Erro ao inserir novos itens:", insErr);
           throw new Error(`Erro de Inserção: ${insErr.message}`);
         }
+      }
+
+      // Logar a Sincronização Global se for o caso
+      if (!projectId) {
+         await supabaseClient.from('activity_logs').insert([{
+           action_type: 'GLOBAL_SYNC',
+           description: `Sincronização global concluída (${cards.length} projetos).`,
+           actor_email: user.email || 'Sistema'
+         }]);
       }
     }
 
@@ -308,7 +345,8 @@ serve(async (req) => {
   } catch (err: any) {
     console.error("Erro fatal no Diagnóstico:", err);
     return new Response(JSON.stringify({ success: false, error: err.message }), { 
-      headers: { ...corsHeaders, "Content-Type": "application/json" }
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+      status: 200
     });
   }
 });
