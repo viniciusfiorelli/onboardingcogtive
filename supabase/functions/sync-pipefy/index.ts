@@ -140,8 +140,10 @@ serve(async (req) => {
         if (!f.field) return false;
         if (IGNORED_CHECKLIST_FIELDS.includes(f.field.id)) return false;
         const type = f.field.type?.toLowerCase() || "";
-        // Aceitar qualquer coisa que pareça rádio, checklist, texto ou attachment
-        return type.includes('radio') || type.includes('checklist') || type.includes('text') || type.includes('attachment');
+        // Aceitar qualquer coisa que pareça rádio, checklist, texto, select, dropdown ou attachment
+        return type.includes('radio') || type.includes('checklist') || 
+               type.includes('text') || type.includes('attachment') ||
+               type.includes('select') || type.includes('dropdown');
       });
 
       console.log(`Cartão "${card.title}": identifiquei ${checklistFields.length} campos de checklist.`);
@@ -261,19 +263,36 @@ serve(async (req) => {
               }
             });
           }
+        } else if (cf.field.options && cf.field.options.length > 0) {
+          // It's an option-based field (radio, select, dropdown, checklist)
+          let selectedValues: string[] = [];
+          if (cf.value) {
+            try {
+              const parsed = JSON.parse(cf.value);
+              if (Array.isArray(parsed)) {
+                selectedValues = parsed.map(v => String(v));
+              } else {
+                selectedValues = [String(parsed)];
+              }
+            } catch {
+              selectedValues = [String(cf.value)];
+            }
+          }
+          cf.field.options.forEach((opt: string) => {
+            allChecklistRows.push({ 
+              ...row, 
+              item_text: opt, 
+              checked: selectedValues.includes(opt) 
+            });
+          });
         } else if (row.field_type === 'radio') {
           row.item_text = cf.value || '';
           row.checked = !!cf.value;
           allChecklistRows.push(row);
         } else {
-          // Checklist múltiplo (com opções)
-          let checked = [];
-          try { checked = JSON.parse(cf.value || '[]'); } catch { }
-          if (cf.field.options) {
-            cf.field.options.forEach((opt: string) => {
-              allChecklistRows.push({ ...row, item_text: opt, checked: checked.includes(opt) });
-            });
-          }
+          row.item_text = cf.value || '';
+          row.checked = !!cf.value;
+          allChecklistRows.push(row);
         }
       }
     }
