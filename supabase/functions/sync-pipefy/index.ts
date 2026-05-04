@@ -329,11 +329,19 @@ serve(async (req) => {
 
       // Logar a Sincronização Global se for o caso
       if (!projectId) {
-         await supabaseClient.from('activity_logs').insert([{
+         console.log("Registrando log de Sincronização Global...");
+         const { error: logErr } = await supabaseClient.from('activity_logs').insert([{
            action_type: 'GLOBAL_SYNC',
            description: `Sincronização global concluída (${cards.length} projetos).`,
            actor_email: user.email || 'Sistema'
          }]);
+         
+         if (logErr) {
+            console.error("ERRO CRÍTICO: Falha ao registrar log de Sincronização Global:", logErr);
+            // Não travamos o retorno de sucesso do sync, mas o log falhou
+         } else {
+            console.log("Log de GLOBAL_SYNC registrado com sucesso.");
+         }
       }
     }
 
@@ -344,7 +352,10 @@ serve(async (req) => {
 
   } catch (err: any) {
     console.error("Erro fatal no Diagnóstico:", err);
-    return new Response(JSON.stringify({ success: false, error: err.message }), { 
+    return new Response(JSON.stringify({ 
+      success: false, 
+      message: err.message || "Erro interno na sincronização" 
+    }), { 
       headers: { ...corsHeaders, "Content-Type": "application/json" },
       status: 200
     });

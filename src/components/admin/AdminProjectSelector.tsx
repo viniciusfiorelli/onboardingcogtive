@@ -12,6 +12,7 @@ import { Button } from '@/components/ui/button';
 import { useState } from 'react';
 import { supabase } from '@/lib/supabase';
 import { useQueryClient } from '@tanstack/react-query';
+import { toast } from 'sonner';
 
 import { useNavigate, useLocation } from 'react-router-dom';
 
@@ -45,30 +46,32 @@ export function AdminProjectSelector() {
         body: { projectId: selectedProjectId }
       });
       
-      console.log('Resposta da Função Sync:', { data, error });
-      
       if (error) {
         console.error('Erro retornado pelo Supabase:', error);
         throw error;
       }
 
-      // The edge function returns { success, message/error } in the body
-      if (data && data.success === false) {
-        console.error('Erro retornado pela função sync:', data.error);
-        throw new Error(data.error || 'Erro desconhecido na sincronização');
-      }
-      
-      console.log('Sincronização concluída:', data?.message);
-      
-      // Invalidate queries to refresh the data automatically across all dashboards
-      await queryClient.invalidateQueries({ queryKey: ['allClients'] });
-      await queryClient.invalidateQueries({ queryKey: ['adminDashboard'] });
-      if (selectedProjectId) {
-         await queryClient.invalidateQueries({ queryKey: ['projectData'] });
+      if (data && data.success) {
+        toast.success('Sincronização concluída', {
+          description: data.message || 'Dados atualizados com sucesso.'
+        });
+        
+        // Invalidate queries to refresh the data automatically across all dashboards
+        await queryClient.invalidateQueries({ queryKey: ['allClients'] });
+        await queryClient.invalidateQueries({ queryKey: ['adminDashboard'] });
+        if (selectedProjectId) {
+           await queryClient.invalidateQueries({ queryKey: ['projectData'] });
+        }
+      } else {
+        toast.error('Sincronização bloqueada', {
+          description: data?.message || 'Aguarde o tempo de cooldown para sincronizar novamente.'
+        });
       }
     } catch (e: any) {
       console.error('Erro durante a sincronização manual:', e);
-      alert('Erro na sincronização: ' + (e.message || 'Erro desconhecido'));
+      toast.error('Erro na sincronização', {
+        description: e.message || 'Ocorreu um erro inesperado.'
+      });
     } finally {
       setIsSyncing(false);
     }
