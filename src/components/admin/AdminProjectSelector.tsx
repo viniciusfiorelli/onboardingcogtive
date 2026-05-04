@@ -72,13 +72,20 @@ export function AdminProjectSelector() {
         <div className="text-sm text-destructive">Erro ao carregar clientes</div>
       ) : (
         <Select 
-          value={selectedProjectId || undefined} 
-          onValueChange={setSelectedProjectId}
+          value={selectedProjectId || 'all'} 
+          onValueChange={(val) => setSelectedProjectId(val === 'all' ? null : val)}
         >
           <SelectTrigger className="w-[200px] md:w-[280px]">
             <SelectValue placeholder="Selecione um Cliente" />
           </SelectTrigger>
           <SelectContent>
+             <SelectItem value="all">
+               <div className="flex flex-col">
+                 <span className="font-bold text-primary">Visão Geral</span>
+                 <span className="text-[10px] text-muted-foreground">Sincronização da base completa</span>
+               </div>
+             </SelectItem>
+             
              {clients?.map((client) => {
                const isCompleted = client.status === 'concluido';
                return (
@@ -107,10 +114,10 @@ export function AdminProjectSelector() {
         size="sm" 
         onClick={handleSync} 
         disabled={isSyncing || isLoading}
-        className="hidden md:flex bg-background shadow-sm hover:border-primary/40 transition-colors text-xs ml-2"
+        className={`hidden md:flex bg-background shadow-sm hover:border-primary/40 transition-colors text-xs ml-2 ${!selectedProjectId ? 'border-primary/40 ring-1 ring-primary/20' : ''}`}
       >
         <RefreshCw className={`w-3.5 h-3.5 mr-1.5 ${isSyncing ? 'animate-spin' : ''}`} />
-        {isSyncing ? 'Sincronizando...' : 'Pipefy Sync'}
+        {isSyncing ? 'Sincronizando...' : selectedProjectId ? 'Pipefy Sync' : 'Sync Base Completa'}
       </Button>
     </div>
   );
