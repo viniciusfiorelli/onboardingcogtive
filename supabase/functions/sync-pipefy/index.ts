@@ -143,9 +143,42 @@ serve(async (req) => {
       return 'em_preparacao';
     };
 
-    // Preparar Upsert de Projetos
+    // Preparar Upsert de Projetos e buscar estado anterior para diff
+    const pipefyCardIds = cards.map((c: any) => String(c.id));
+    const { data: existingProjects } = await supabaseClient
+      .from('onboarding_projects')
+      .select('id, pipefy_card_id, current_phase, client_name')
+      .in('pipefy_card_id', pipefyCardIds);
+
+    const existingProjectMap = new Map();
+    existingProjects?.forEach(p => existingProjectMap.set(p.pipefy_card_id, p));
+
+    const existingProjectIds = existingProjects?.map(p => p.id) || [];
+    let existingChecklists: any[] = [];
+    if (existingProjectIds.length > 0) {
+       const { data: ec } = await supabaseClient
+         .from('onboarding_checklist_items')
+         .select('id, project_id, checklist_label, item_text, checked')
+         .in('project_id', existingProjectIds);
+       existingChecklists = ec || [];
+    }
+
+    const logsToInsert: any[] = [];
+    const actorEmail = "Automacao_Pipefy";
+
     const projectBatch = cards.map((card: any) => {
       const phaseName = card.current_phase?.name || '';
+      
+      const existing = existingProjectMap.get(String(card.id));
+      if (existing && existing.current_phase !== phaseName && existing.current_phase !== '') {
+          logsToInsert.push({
+             project_id: existing.id,
+             actor_email: actorEmail,
+             action_type: 'phase_change',
+             description: `A fase do projeto no Pipefy mudou para "${phaseName}".`
+          });
+      }
+
       return {
         pipefy_card_id: String(card.id),
         client_name: (card.fields.find((f: any) => f.name === "Nome do cliente")?.value || card.title || "").trim(),
@@ -263,7 +296,7 @@ serve(async (req) => {
                 row.checked = !!cf.value;
                 allChecklistRows.push(row);
              }
-          } else {
+           } else {
              // Fallback para campos da Pipe vazios no card
              if (f.options && f.options.length > 0) {
                 f.options.forEach((opt: string) => {
@@ -279,6 +312,38 @@ serve(async (req) => {
           }
         }
       }
+
+      // Agora fazemos o diff dos itens para este projeto
+      const oldItems = existingChecklists.filter(i => i.project_id === projectId);
+      const newItems = allChecklistRows.filter(i => i.project_id === projectId);
+
+      // Usar combinação de checklist_label e item_text como chave única para diff
+      const oldMap = new Map();
+      oldItems.forEach(i => oldMap.set(`${i.checklist_label}::${i.item_text}`, i));
+
+      newItems.forEach(newItem => {
+         const key = `${newItem.checklist_label}::${newItem.item_text}`;
+         const oldItem = oldMap.get(key);
+         if (oldItem) {
+            if (oldItem.checked !== newItem.checked) {
+               logsToInsert.push({
+                  project_id: projectId,
+                  actor_email: actorEmail,
+                  action_type: 'checklist_change',
+                  description: newItem.checked 
+                    ? `Item concluído no Pipefy: "${newItem.item_text || newItem.checklist_label}"` 
+                    : `Item desmarcado no Pipefy: "${newItem.item_text || newItem.checklist_label}"`
+               });
+            } else if (newItem.field_type === 'text' && oldItem.item_text !== newItem.item_text && oldItem.item_text) {
+               logsToInsert.push({
+                  project_id: projectId,
+                  actor_email: actorEmail,
+                  action_type: 'text_change',
+                  description: `O campo "${newItem.checklist_label}" foi alterado no Pipefy.`
+               });
+            }
+         }
+      });
     }
 
     if (projectIds.length > 0) {
@@ -289,6 +354,13 @@ serve(async (req) => {
       if (insErr) {
         console.error("Erro ao inserir novos itens:", insErr);
         throw new Error(`Erro de Inserção: ${insErr.message}`);
+      }
+
+      // Inserir os Logs gerados pelo diff
+      if (logsToInsert.length > 0) {
+         console.log(`Inserindo ${logsToInsert.length} logs de atividade detectados no diff.`);
+         const { error: logErr } = await supabaseClient.from('activity_logs').insert(logsToInsert);
+         if (logErr) console.error("Erro ao inserir logs:", logErr);
       }
     }
 
