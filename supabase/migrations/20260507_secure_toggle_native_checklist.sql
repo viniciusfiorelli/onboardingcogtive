@@ -1,9 +1,6 @@
--- Migration: Add JSONB column to onboarding_projects to handle native dynamic checklists decoupled from Pipefy
+-- Harden toggle_native_checklist so authenticated users can only update
+-- their own project, while Cogtive admins keep the current admin behavior.
 
-ALTER TABLE onboarding_projects
-ADD COLUMN IF NOT EXISTS native_checklist_states JSONB DEFAULT '{}'::jsonb;
-
--- Criar a Stored Procedure para garantir consistência em ambientes de concorrência
 CREATE OR REPLACE FUNCTION toggle_native_checklist(
    p_project_id UUID,
    p_item_id TEXT,
@@ -44,9 +41,9 @@ BEGIN
       RAISE EXCEPTION 'Acesso negado: projeto nao pertence ao usuario.';
    END IF;
 
-   -- Recupera a row lockada para leitura
-   SELECT native_checklist_states INTO v_current_state 
-   FROM onboarding_projects 
+   SELECT native_checklist_states
+   INTO v_current_state
+   FROM onboarding_projects
    WHERE id = p_project_id
    FOR UPDATE;
 
@@ -54,7 +51,6 @@ BEGIN
       v_current_state := '{}'::jsonb;
    END IF;
 
-   -- Altera ou cria a chave (itemId) jogando bool via jsonb_set
    v_new_state := jsonb_set(
       v_current_state,
       array[p_item_id],
@@ -62,7 +58,6 @@ BEGIN
       true
    );
 
-   -- Update local
    UPDATE onboarding_projects
    SET native_checklist_states = v_new_state,
        updated_at = NOW()
