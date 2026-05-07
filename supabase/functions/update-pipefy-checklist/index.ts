@@ -83,13 +83,6 @@ serve(async (req) => {
         ? { item_text: newItemText, checked: !!newItemText } 
         : { checked: isChecked };
 
-      const { error: updErr } = await supabaseAdmin
-        .from('onboarding_checklist_items')
-        .update(updatePayload)
-        .eq('id', checklistItemId);
-      
-      if (updErr) throw new Error(`Erro ao atualizar banco local: ${updErr.message}`);
-
       // 4. Sincronização com Pipefy
       const pipefyToken = Deno.env.get('PIPEFY_API_TOKEN');
       if (!pipefyToken) throw new Error("PIPEFY_API_TOKEN não configurado.");
@@ -102,12 +95,14 @@ serve(async (req) => {
            // RECONSTRUÇÃO DO TEXTO EXCLUSIVO (Markdown Style com [FEITO])
            const { data: siblings } = await supabaseAdmin
              .from('onboarding_checklist_items')
-             .select('item_text, checked, checklist_label')
+              .select('id, item_text, checked, checklist_label')
              .eq('project_id', item.project_id)
              .eq('pipefy_field_id', fieldId);
 
            const grouped: Record<string, any[]> = {};
-           (siblings || []).forEach(s => {
+            (siblings || [])
+              .map(s => s.id === checklistItemId ? { ...s, checked: isChecked } : s)
+              .forEach(s => {
                const lbl = s.checklist_label || "Detalhes";
                if (!grouped[lbl]) grouped[lbl] = [];
                grouped[lbl].push(s);
@@ -129,11 +124,13 @@ serve(async (req) => {
       } else {
         const { data: siblings } = await supabaseAdmin
           .from('onboarding_checklist_items')
-          .select('item_text, checked')
+          .select('id, item_text, checked')
           .eq('project_id', item.project_id)
           .eq('pipefy_field_id', fieldId);
 
-        const activeSiblings = (siblings || []).filter(s => s.checked);
+        const activeSiblings = (siblings || [])
+          .map(s => s.id === checklistItemId ? { ...s, checked: isChecked } : s)
+          .filter(s => s.checked);
         if (fieldType === 'radio' || activeSiblings.length <= 1) {
           newValue = activeSiblings.length > 0 ? activeSiblings[0].item_text : "";
         } else {
@@ -169,6 +166,17 @@ serve(async (req) => {
       if (pipefyData.errors) {
          throw new Error(`Pipefy Error: ${pipefyData.errors[0]?.message || 'Erro desconhecido'}`);
       }
+
+      if (pipefyData.data?.updateCardField?.success === false) {
+         throw new Error("Pipefy recusou a atualizacao do campo.");
+      }
+
+      const { error: updErr } = await supabaseAdmin
+        .from('onboarding_checklist_items')
+        .update(updatePayload)
+        .eq('id', checklistItemId);
+
+      if (updErr) throw new Error(`Erro ao atualizar banco local: ${updErr.message}`);
     } finally {
       // LIBERAR CADEADO (Sucesso ou Erro)
       await supabaseAdmin
