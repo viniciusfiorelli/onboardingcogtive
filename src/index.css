@@ -97,4 +97,30 @@
     background-image: radial-gradient(circle, hsl(195 90% 48% / 0.04) 1px, transparent 1px);
     background-size: 32px 32px;
   }
+
+  .local-performance-mode .glass-card,
+  .local-performance-mode .glass-card-hover,
+  .local-performance-mode [class*="backdrop-blur"] {
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+  }
+
+  .local-performance-mode [class*="blur-["],
+  .local-performance-mode [class*="blur-sm"],
+  .local-performance-mode [class*="blur-xl"],
+  .local-performance-mode [class*="blur-2xl"],
+  .local-performance-mode [class*="blur-3xl"] {
+    filter: none !important;
+  }
+
+  .local-performance-mode .glow-primary,
+  .local-performance-mode .glow-sm,
+  .local-performance-mode [class*="shadow-["] {
+    box-shadow: none !important;
+  }
+
+  .local-performance-mode .animate-pulse,
+  .local-performance-mode .animate-bounce {
+    animation: none !important;
+  }
 }
