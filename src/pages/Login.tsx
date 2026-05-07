@@ -10,6 +10,14 @@ import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/lib/supabase';
 import { toast } from 'sonner';
 
+const isLocalhost = () =>
+  ['localhost', '127.0.0.1', '::1'].includes(window.location.hostname);
+
+const triggerLoginSync = () => {
+  if (isLocalhost()) return;
+  supabase.functions.invoke('sync-pipefy').catch(console.error);
+};
+
 export default function Login() {
   const navigate = useNavigate();
   const { session } = useAuth();
@@ -36,14 +44,14 @@ export default function Login() {
         if (error) { toast.error('Falha de Segurança', { description: error.message }); return; }
         
         toast.success('Acesso Autorizado', { description: 'Iniciando portal seguro...' });
-        supabase.functions.invoke('sync-pipefy').catch(console.error);
+        triggerLoginSync();
         
       } else {
         const { error } = await supabase.auth.signUp({ email, password });
         if (error) { toast.error('Erro na Assinatura', { description: error.message }); return; }
         
         toast.success('Credenciais emitidas', { description: 'Sincronizando perfil seguro...' });
-        supabase.functions.invoke('sync-pipefy').catch(console.error);
+        triggerLoginSync();
         setIsLoginMode(true);
       }
     } catch (err: any) {
