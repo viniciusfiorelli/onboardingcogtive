@@ -131,15 +131,15 @@ serve(async (req) => {
          if (page > 1) await delay(500); // Pausa entre páginas do Pipefy
 
          console.log(`Buscando cartões do Pipefy... Cursor atual: ${afterCursor} (Página ${page})`);
-         const query = `{ allCards(pipeId: "${pipeId}", first: 50${afterCursor ? `, after: "${afterCursor}"` : ''}) { pageInfo { hasNextPage endCursor } edges { node { id title current_phase { name } fields { name value field { id label type options } phase_field { phase { name } } } } } } }`;
+         const query: string = `{ allCards(pipeId: "${pipeId}", first: 50${afterCursor ? `, after: "${afterCursor}"` : ''}) { pageInfo { hasNextPage endCursor } edges { node { id title current_phase { name } fields { name value field { id label type options } phase_field { phase { name } } } } } } }`;
 
-         const pipefyRes = await fetch("https://api.pipefy.com/graphql", {
+         const pipefyRes: Response = await fetch("https://api.pipefy.com/graphql", {
            method: "POST",
            headers: { "Content-Type": "application/json", "Authorization": `Bearer ${pipefyToken}` },
            body: JSON.stringify({ query })
          });
 
-         const pipefyData = await pipefyRes.json();
+         const pipefyData: any = await pipefyRes.json();
 
          if (pipefyData.error === 'invalid_token' || pipefyData.state === 'unauthorized') {
            throw new Error(`Token do Pipefy inválido ou expirado. Verifique o secret PIPEFY_API_TOKEN no Supabase.`);
@@ -159,7 +159,7 @@ serve(async (req) => {
            if (e.node) cards.push(e.node);
          });
 
-         const pageInfo = pipefyData.data?.allCards?.pageInfo;
+         const pageInfo: any = pipefyData.data?.allCards?.pageInfo;
          hasMore = pageInfo?.hasNextPage || false;
          afterCursor = pageInfo?.endCursor || null;
 

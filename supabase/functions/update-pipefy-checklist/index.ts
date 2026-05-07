@@ -38,7 +38,7 @@ serve(async (req) => {
     // 2. Busca o projeto vinculado para pegar o cardId do Pipefy
     const { data: project, error: projErr } = await supabaseAdmin
       .from('onboarding_projects')
-      .select('pipefy_card_id, client_email')
+      .select('pipefy_card_id, client_email, sync_lock_at')
       .eq('id', item.project_id)
       .maybeSingle();
 
