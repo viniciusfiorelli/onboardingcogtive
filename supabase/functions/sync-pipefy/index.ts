@@ -20,14 +20,17 @@ serve(async (req) => {
 
     const token = authHeader.replace('Bearer ', '');
     let user;
-    if (token === Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')) {
+    const isServiceRole = token === Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
+    if (isServiceRole) {
        user = { email: 'admin@service.role' };
     } else {
        const supabaseAuth = createClient(Deno.env.get('SUPABASE_URL') ?? '', Deno.env.get('SUPABASE_ANON_KEY') ?? '');
        const { data, error: authErr } = await supabaseAuth.auth.getUser(token);
        if (authErr || !data?.user) throw new Error("Acesso Negado: Token Inválido ou Expirado.");
-       user = data.user;
+        user = data.user;
     }
+    const requesterEmail = (user.email || '').toLowerCase();
+    const isAdmin = isServiceRole || requesterEmail.endsWith('@cogtive.com');
 
     // Admin Privileged Connection
     const supabaseClient = createClient(
@@ -49,20 +52,35 @@ serve(async (req) => {
       console.log(`Buscando no banco o pipefy_card_id para o projeto: ${projectId}`);
       const { data: proj } = await supabaseClient
         .from('onboarding_projects')
-        .select('pipefy_card_id')
+        .select('pipefy_card_id, client_email')
         .eq('id', projectId)
         .maybeSingle();
+      if (!proj) {
+        throw new Error("Acesso Negado: Projeto nao encontrado.");
+      }
+
+      const projectClientEmail = (proj.client_email || '').toLowerCase();
+      if (!isAdmin && projectClientEmail !== requesterEmail) {
+        throw new Error("Acesso Negado: Voce nao tem permissao para sincronizar este projeto.");
+      }
+
       if (proj?.pipefy_card_id) {
          cardIdsToFetch = [String(proj.pipefy_card_id)];
          console.log(`Identificado pipefy_card_id: ${proj.pipefy_card_id}`);
+      } else {
+         throw new Error("Projeto nao possui card do Pipefy vinculado.");
       }
     } else {
+       if (!isAdmin) {
+          throw new Error("Acesso Negado: Sincronizacao global permitida apenas para administradores.");
+       }
+
        // BLOQUEIO: Sincronização Global apenas a cada 10 minutos
-       console.log("Checando cooldown de Sincronização Global...");
+       console.log("Checando cooldown de Sincronização Global via INTERNAL_SYNC_COOLDOWN...");
        const { data: lastSync } = await supabaseClient
          .from('activity_logs')
          .select('created_at')
-         .eq('action_type', 'GLOBAL_SYNC')
+         .eq('action_type', 'INTERNAL_SYNC_COOLDOWN')
          .order('created_at', { ascending: false })
          .limit(1)
          .maybeSingle();
@@ -327,12 +345,12 @@ serve(async (req) => {
         }
       }
 
-      // Logar a Sincronização Global se for o caso
+      // Logar a Sincronização Global internamente para controle de cooldown
       if (!projectId) {
-         console.log("Registrando log de Sincronização Global...");
+         console.log("Registrando log interno de controle de Cooldown...");
          const { error: logErr } = await supabaseClient.from('activity_logs').insert([{
-           action_type: 'GLOBAL_SYNC',
-           description: `Sincronização global concluída (${cards.length} projetos).`,
+           action_type: 'INTERNAL_SYNC_COOLDOWN',
+           description: `Controle interno: Sincronização global concluída (${cards.length} projetos).`,
            actor_email: user.email || 'Sistema'
          }]);
          
